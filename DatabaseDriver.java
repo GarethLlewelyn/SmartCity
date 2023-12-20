@@ -112,18 +112,6 @@ public class DatabaseDriver {
 		
 	}
 	
-		
-	public static void main(String[] args) throws SQLException{
-		
-		//new DBConnect();
-		
-		//String[][] Result = Instance.Retrievetable("user");
-		//System.out.println(Result[0][0]);
-		
-		//String LoginID = Instance.LoginVerification("Gaza", "Gaza123");
-		//System.out.println(LoginID);
-		
-	}
 
 	
 
