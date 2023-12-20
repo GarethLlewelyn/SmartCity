@@ -25,9 +25,10 @@ public class DatabaseDriver {
 		this.serverName = serverName;
 		this.portNumber = portNumber;
 		this.url = "jdbc:mysql://" + this.Host + ":" + this.portNumber + "/" + this.serverName;
-		System.out.print("ran");
-		
 		DBConnect();
+		
+		System.out.print("DB Constructor Complete");
+
 	}
 	
 	public void DBConnect() {
@@ -79,7 +80,6 @@ public class DatabaseDriver {
         	
         	for(int K = 1; K <= columnCount; K++ ) {
 	        	Result[i][K-1] = resultSet.getString(K);
-	        	System.out.println(resultSet.getString(K));
         	}
         	
         	i++;
@@ -100,11 +100,13 @@ public class DatabaseDriver {
 
         if(resultSet.next()) {
         	
-        	Result = resultSet.getString(1);
-        	
+        	if(resultSet.getString(7).equals("0")){
+        		Result = "User Unverified";
+        	}else {
+        		
+        		Result = resultSet.getString(1);
+        	}        	
         }
-		
-		
 		return Result;
 	
 		
@@ -113,16 +115,16 @@ public class DatabaseDriver {
 		
 	public static void main(String[] args) throws SQLException{
 		
-		DatabaseDriver Instance = new DatabaseDriver("root", "", "127.0.0.1", "smartcity", 3306);
 		//new DBConnect();
 		
 		//String[][] Result = Instance.Retrievetable("user");
 		//System.out.println(Result[0][0]);
 		
-		String LoginID = Instance.LoginVerification("Gaza", "Gaza123");
-		System.out.println(LoginID);
+		//String LoginID = Instance.LoginVerification("Gaza", "Gaza123");
+		//System.out.println(LoginID);
 		
 	}
+
 	
 
 		
