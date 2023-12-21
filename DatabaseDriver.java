@@ -91,21 +91,34 @@ public class DatabaseDriver {
 		
 	}
 	
-	public String LoginVerification(String Username, String Password) throws SQLException{
+	public String[] LoginVerification(String Username, String Password) throws SQLException{
 	    String Query = "SELECT * FROM user WHERE UserName='" + Username + "' && Password='" + Password+ "'";
         statement = (Statement) conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ResultSet resultSet = statement.executeQuery(Query);
-        String Result = null;
+        int columnCount = resultSet.getMetaData().getColumnCount(); // Get number of columns
 
+        String[] Result = new String[columnCount+1];
+        System.out.println(Username);
 
         if(resultSet.next()) {
         	
         	if(resultSet.getString(7).equals("0")){
-        		Result = "User Unverified";
+        		Result[0] = "User Unverified";
         	}else {
         		
-        		Result = resultSet.getString(1);
+        		Result[0] = "Success";
+            	for(int J = 1; J <= columnCount; J++ ) {
+            		if(J != 4) {
+            			Result[J] = resultSet.getString(J); //Load Results full of the Users Information
+            			}
+            		}
+            	
+        	
+        	
+        	
         	}        	
+        }else {
+        	Result[0] = "Wrong Username or Password";
         }
 		return Result;
 	
