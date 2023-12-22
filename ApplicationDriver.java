@@ -7,6 +7,7 @@ public class ApplicationDriver {
 	
 	
     public static DatabaseDriver DBInstance;  // Declare DBInstance as static
+    public static String RegisterResult;
     public static boolean LoggedIn = false;
     static String[] UserResult;
     
@@ -19,6 +20,9 @@ public class ApplicationDriver {
 
 			//new GUI();
 			GUI.Login();
+		}else {
+			
+			System.out.println("SIGN IN SUCCESS");
 		}
 		
 		
