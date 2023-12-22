@@ -16,6 +16,14 @@ public class DatabaseDriver {
 	Connection conn;
 	String Query;
 	Statement statement;
+	
+	
+	
+	
+	
+	
+	
+	
 	public DatabaseDriver(String userName, String password, Object Host, String serverName, int portNumber){
 		
 		//Constructor initialises variables
@@ -42,15 +50,14 @@ public class DatabaseDriver {
 			      conn = DriverManager.getConnection(url, info);
 
 			      if (conn != null) {
-			        System.out.println("Successfully connected to MySQL database test");
+			        System.out.println("Connected to Database");
 			      }
 
 			    
 				
-			    System.out.println("Connected to database");
 			}
 			catch (SQLException ex) {
-			      System.out.println("An error occurred while connecting MySQL databse");
+			      System.out.println("Error while connecting the Database");
 			      ex.printStackTrace();
 			    }
 
@@ -98,7 +105,6 @@ public class DatabaseDriver {
         int columnCount = resultSet.getMetaData().getColumnCount(); // Get number of columns
 
         String[] Result = new String[columnCount+1];
-        System.out.println(Username);
 
         if(resultSet.next()) {
         	
@@ -109,7 +115,7 @@ public class DatabaseDriver {
         		Result[0] = "Success";
             	for(int J = 1; J <= columnCount; J++ ) {
             		if(J != 4) {
-            			Result[J] = resultSet.getString(J); //Load Results full of the Users Information
+            			Result[J] = resultSet.getString(J); //Load Results full of the Users Information exluding password
             			}
             		}
             	
@@ -125,9 +131,42 @@ public class DatabaseDriver {
 		
 	}
 	
+	
+	
+	public String UserRegister(String[] RegisterDetails) throws SQLException{
+		
+		
+		
+		try(PreparedStatement CheckUserStmt = conn.prepareStatement("Select UserName FROM user WHERE UserName = ? ")){
+
+			CheckUserStmt.setString(1, RegisterDetails[0]);
+			ResultSet QueryResult = CheckUserStmt.executeQuery();
+			if(QueryResult.next()) {
+				return "UserName Already Exists";
+				
+			}else {
+				
+				PreparedStatement stmt = conn.prepareStatement("insert into user (UserName, FullName, Password, Email) values (?, ?, ?, ?)");
+				stmt.setString(1, RegisterDetails[0]);
+				stmt.setString(2, RegisterDetails[1]);
+				stmt.setString(3, RegisterDetails[2]);
+				stmt.setString(4, RegisterDetails[3]);
+				return "Register Succesfull";
+
+			}
+		
+
+		}catch (SQLException e) {
+	        e.printStackTrace();
+	        return "Please Try Again"; 
+	    }
 
 	
 
 		
+		
+	
+
+	}
 }
 
