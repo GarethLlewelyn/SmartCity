@@ -6,6 +6,9 @@ public interface SmartCityApp {
 
 	
 	void RetrieveTable() throws SQLException;
+	
+	void ConvertTable() throws SQLException;
+
 	//Initialise classes
 	
 }
