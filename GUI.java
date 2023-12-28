@@ -48,35 +48,59 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 	private static JMenuBar MenuBar = new JMenuBar();
 	private static JMenu Menu, Navigate, Profile; //Variables packed for efficient space usage
-	private static JMenuItem Quit, ChangeDetails, Tourist, Student, Job, Buisness, LogOut;
+	private static JMenuItem Quit, ChangeDetails, Tourist, Student, Job, Business, LogOut;
 	
 	private static JPanel TouristPanel = new JPanel(); //initialising Smart City page Variables
-
-	private static JLabel ExpandTitleLabel;
-	private static JLabel ExpandAddressLabel;
-	private static JLabel ExpandDescriptionLabel;
-	private static JLabel ExpandEmailLabel;
+	private static JPanel StudentPanel = new JPanel(); 
+	private static JPanel JobPanel = new JPanel(); 
+	private static JPanel BusinessPanel = new JPanel(); 
 
 
+    private static JMenuItem Expand; //JMenuItems for all Tables
+    private static JMenuItem CopyRowLink;
 	
-	
-	private static JPanel HotelPanel = new JPanel(); 
+	private static JPanel HotelPanel = new JPanel();  //Tourist Sub-Panels
 	private static JPanel ResterauntPanel = new JPanel();
 	private static JPanel WhatsonPanel = new JPanel();
 	private static JPanel MapPanel = new JPanel();
-	
 	private static JLabel HotelLabel; 
 	private static JLabel ResterauntLabel;
-	
-    private static JPopupMenu HotelpopupMenu;
-    private static JMenuItem HotelExpand;
-    private static JMenuItem CopyRowLink;
     private static JTable Hoteltable;
-	//private static JLabel JobPanel = new JPanel();
-	//private static JLabel BuisnessPanel = new JPanel();
-    private static JPopupMenu ResterauntpopupMenu;
-    private static JMenuItem ResterauntExpand;
-    private static JMenuItem ResterauntCopyRowLink;
+
+	
+	
+	private static JPanel AccomidationPanel = new JPanel();  //Student Sub-Panels
+	private static JPanel ColUniPanel = new JPanel();
+	private static JLabel ColUniLabel;
+	private static JPanel FinanceInfoPanel = new JPanel();
+	private static JPanel LocationsPanel = new JPanel();
+	private static JLabel AccomidationLabel; 
+	private static JTable Accomidationtable;
+	private static JTable ColUnitable;
+	
+	
+	private static JPanel JobPostingPanel = new JPanel();  //Job Sub-Panels
+	private static JPanel ApprentishipsPanel = new JPanel();
+	private static JLabel ApprentishipsLabel;
+	private static JPanel IndustriesPanel = new JPanel();
+	private static JPanel JobSeekersPanel = new JPanel();
+	private static JLabel JobPostingLabel; 
+	private static JTable JobPostingtable;
+	private static JTable Apprentishipstable;
+	private static JPanel VolunteeringPanel = new JPanel();
+	
+	private static JPanel OpportunitiesPanel = new JPanel();  //Business Sub-Panels
+	private static JPanel UnitsPanel = new JPanel();
+	private static JLabel UnitsLabel;
+	private static JTable Unitstable;
+	private static JPanel NewBuinessPanel = new JPanel();
+	private static JLabel NewBuinessLabel; 
+	private static JTable NewBuinesstable;
+	private static JPanel BuinessNewsPanel = new JPanel();
+	private static JLabel BuinessNewsLabel; 
+	private static JTable BuinessNewstable;
+	
+    private static JPopupMenu popupMenu;
 
 	
 	public static boolean Login() throws IOException {
@@ -240,6 +264,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	
 	public static void SmartCityPage() throws IOException{
 
+		
+		
+		
+		StudentPanel.setVisible(false);
+		TouristPanel.setVisible(true);
+		
 		frame = new JFrame();
 		frame.setSize(900,670);	
 		frame.setBackground(Color.LIGHT_GRAY);
@@ -251,13 +281,14 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		Tourist = new JMenuItem("Tourist"); //Set Menu Items
 		Student = new JMenuItem("Student");
 		Job = new JMenuItem("Job");
-		Buisness = new JMenuItem("Buisness");
+		Business = new JMenuItem("Business");
 		Quit = new JMenuItem("Quit");
 		ChangeDetails = new JMenuItem("Change Details");
 		LogOut = new JMenuItem("Log Out");
 		
-
-
+			
+		//TOURIST PANEL
+	
 		TouristPanel.setBackground(Color.gray);
 		TouristPanel.setLayout(null);
 		
@@ -272,16 +303,16 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         
         
-        HotelpopupMenu = new JPopupMenu();
-        HotelExpand = new JMenuItem("Expand");
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
         CopyRowLink = new JMenuItem("Copy Link");
         
-        HotelExpand.addActionListener(new GUI());
+        Expand.addActionListener(new GUI());
         CopyRowLink.addActionListener(new GUI());
         
         
-        HotelpopupMenu.add(HotelExpand);
-        HotelpopupMenu.add(CopyRowLink);
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
         
         
         // Create scrollable table
@@ -310,7 +341,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         HotelcolumnToHide2.setResizable(false);  // Prevent resizing
         
         
-        Hoteltable.setComponentPopupMenu(HotelpopupMenu);
+        Hoteltable.setComponentPopupMenu(popupMenu);
         Hoteltable.addMouseListener(new TableMouseListener(Hoteltable));
         
         JScrollPane HotelscrollPane = new JScrollPane(Hoteltable);
@@ -336,16 +367,16 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         
         
-        ResterauntpopupMenu = new JPopupMenu();
-        ResterauntExpand = new JMenuItem("Expand");
-        ResterauntCopyRowLink = new JMenuItem("Copy Link");
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
         
-        ResterauntExpand.addActionListener(new GUI());
-        ResterauntCopyRowLink.addActionListener(new GUI());
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
         
         
-        ResterauntpopupMenu.add(ResterauntExpand);
-        ResterauntpopupMenu.add(ResterauntCopyRowLink);
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
         
         
         // Create scrollable table
@@ -374,7 +405,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         ResterauntcolumnToHide2.setResizable(false);  // Prevent resizing
         
         
-        Resteraunttable.setComponentPopupMenu(ResterauntpopupMenu);
+        Resteraunttable.setComponentPopupMenu(popupMenu);
         Resteraunttable.addMouseListener(new TableMouseListener(Resteraunttable));
         
         
@@ -394,11 +425,558 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		
+		TouristPanel.add(WhatsonPanel);
+		TouristPanel.add(MapPanel);
+		TouristPanel.add(ResterauntPanel);
+		TouristPanel.add(HotelPanel);
+		
+		//End of TouristPanel
+			
+			
+		//Student Panel
+		
+		
+		
+		
+		StudentPanel.setBackground(Color.gray);
+		StudentPanel.setLayout(null);
+		
+		AccomidationPanel.setBounds(455,250,420,350);
+		AccomidationPanel.setBackground(Color.red);
+		
+		AccomidationLabel = new JLabel("Resteraunt");
+		AccomidationPanel.add(AccomidationLabel);
+        String[] AccomidationcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
+        DefaultTableModel Accomidationmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, AccomidationcolumnNames);
+        
+        
+        
+        
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+        
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
+        
+        
+        // Create scrollable table
+        Accomidationtable = new JTable(Accomidationmodel);
+        TableColumn AccomidationcolumnToHide0 = Accomidationtable.getColumnModel().getColumn(0);
+        TableColumn AccomidationcolumnToHide1 = Accomidationtable.getColumnModel().getColumn(2);
+        TableColumn AccomidationcolumnToHide2 = Accomidationtable.getColumnModel().getColumn(3);
+
+        AccomidationcolumnToHide0.setPreferredWidth(150);
+        AccomidationcolumnToHide0.setMinWidth(150);
+        AccomidationcolumnToHide0.setMaxWidth(150);
+        AccomidationcolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer Accomidationdtcr = new DefaultTableCellRenderer();  
+        Accomidationdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        AccomidationcolumnToHide0.setCellRenderer(Accomidationdtcr);
+
+        
+        AccomidationcolumnToHide1.setPreferredWidth(0);
+        AccomidationcolumnToHide1.setMinWidth(0);
+        AccomidationcolumnToHide1.setMaxWidth(0);
+        AccomidationcolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        AccomidationcolumnToHide2.setPreferredWidth(0);
+        AccomidationcolumnToHide2.setMinWidth(0);
+        AccomidationcolumnToHide2.setMaxWidth(0);
+        AccomidationcolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        
+        Accomidationtable.setComponentPopupMenu(popupMenu);
+        Accomidationtable.addMouseListener(new TableMouseListener(Accomidationtable));
+        
+        JScrollPane AccomidationscrollPane = new JScrollPane(Accomidationtable);
+        
+        
+        AccomidationPanel.add(AccomidationscrollPane);
+
+        AccomidationPanel.setBounds(455,250,420,350);
+
+        ColUniPanel.setBounds(10,200,430,400);
+		ColUniPanel.setBackground(Color.red);
+		
+		ColUniLabel = new JLabel("ColUni");
+		ColUniLabel.setBounds(50,0, 100, 100);
+		ColUniPanel.add(ColUniLabel);
+		
+		
+		
+        String[] ColUnicolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
+        DefaultTableModel ColUnimodel = new DefaultTableModel(ApplicationDriver.HotelsTable, ColUnicolumnNames);
+        // Create scrollable table
+        
+        
+        
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+        
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
+        
+        
+        // Create scrollable table
+        ColUnitable = new JTable(ColUnimodel);
+        TableColumn ColUnicolumnToHide0 = ColUnitable.getColumnModel().getColumn(0);
+        TableColumn ColUnicolumnToHide1 = ColUnitable.getColumnModel().getColumn(2);
+        TableColumn ColUnicolumnToHide2 = ColUnitable.getColumnModel().getColumn(3);
+
+        ColUnicolumnToHide0.setPreferredWidth(150);
+        ColUnicolumnToHide0.setMinWidth(150);
+        ColUnicolumnToHide0.setMaxWidth(150);
+        ColUnicolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer ColUnidtcr = new DefaultTableCellRenderer();  
+        ColUnidtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        ColUnicolumnToHide0.setCellRenderer(ColUnidtcr);
+
+        
+        ColUnicolumnToHide1.setPreferredWidth(0);
+        ColUnicolumnToHide1.setMinWidth(0);
+        ColUnicolumnToHide1.setMaxWidth(0);
+        ColUnicolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        ColUnicolumnToHide2.setPreferredWidth(0);
+        ColUnicolumnToHide2.setMinWidth(0);
+        ColUnicolumnToHide2.setMaxWidth(0);
+        ColUnicolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        
+        ColUnitable.setComponentPopupMenu(popupMenu);
+        ColUnitable.addMouseListener(new TableMouseListener(ColUnitable));
+        
+        
+        
+        
+        
+        
+        JScrollPane ColUniscrollPane = new JScrollPane(ColUnitable);
+        ColUniPanel.add(ColUniscrollPane);
+		
+        FinanceInfoPanel.setBounds(10,10,430,180);
+        FinanceInfoPanel.setBackground(Color.yellow);
+		
+        LocationsPanel.setBounds(455,10,420,230);
+        LocationsPanel.setBackground(Color.black);
+		
+		
+		
+		
+		StudentPanel.add(FinanceInfoPanel);
+		StudentPanel.add(ColUniPanel);
+		StudentPanel.add(AccomidationPanel);
+		StudentPanel.add(LocationsPanel);
+		
+		
+		//End of Student Panel
+			
+		//Start of Job Panel
 		
 		
 		
 		
 		
+
+		JobPanel.setBackground(Color.gray);
+		JobPanel.setLayout(null);
+		
+		JobPostingPanel.setBounds(235,10,300,590);
+		JobPostingPanel.setBackground(Color.red);
+		
+		JobPostingLabel = new JLabel("Job Posting");
+		JobPostingPanel.add(JobPostingLabel);
+        String[] JobPostingcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
+        DefaultTableModel JobPostingmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, JobPostingcolumnNames);
+        
+        
+        
+        
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+        
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
+        
+        
+        // Create scrollable table
+        JobPostingtable = new JTable(JobPostingmodel);
+        TableColumn JobPostingcolumnToHide0 = JobPostingtable.getColumnModel().getColumn(0);
+        TableColumn JobPostingcolumnToHide1 = JobPostingtable.getColumnModel().getColumn(2);
+        TableColumn JobPostingcolumnToHide2 = JobPostingtable.getColumnModel().getColumn(3);
+
+        JobPostingcolumnToHide0.setPreferredWidth(150);
+        JobPostingcolumnToHide0.setMinWidth(150);
+        JobPostingcolumnToHide0.setMaxWidth(150);
+        JobPostingcolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer JobPostingdtcr = new DefaultTableCellRenderer();  
+        JobPostingdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        JobPostingcolumnToHide0.setCellRenderer(JobPostingdtcr);
+
+        
+        JobPostingcolumnToHide1.setPreferredWidth(0);
+        JobPostingcolumnToHide1.setMinWidth(0);
+        JobPostingcolumnToHide1.setMaxWidth(0);
+        JobPostingcolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        JobPostingcolumnToHide2.setPreferredWidth(0);
+        JobPostingcolumnToHide2.setMinWidth(0);
+        JobPostingcolumnToHide2.setMaxWidth(0);
+        JobPostingcolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        
+        JobPostingtable.setComponentPopupMenu(popupMenu);
+        JobPostingtable.addMouseListener(new TableMouseListener(JobPostingtable));
+        
+        JScrollPane JobPostingscrollPane = new JScrollPane(JobPostingtable);
+        
+        
+        JobPostingPanel.add(JobPostingscrollPane);
+
+
+        ApprentishipsPanel.setBounds(545,10,330,325);
+        ApprentishipsPanel.setBackground(Color.red);
+		
+        ApprentishipsLabel = new JLabel("Apprentiships");
+        ApprentishipsLabel.setBounds(50,0, 100, 100);
+        ApprentishipsPanel.add(ApprentishipsLabel);
+		
+		
+		
+        String[] ApprentishipscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
+        DefaultTableModel Apprentishipsmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, ApprentishipscolumnNames);
+        // Create scrollable table
+        
+        
+        
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+        
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
+        
+        
+        // Create scrollable table
+        Apprentishipstable = new JTable(Apprentishipsmodel);
+        TableColumn ApprentishipscolumnToHide0 = Apprentishipstable.getColumnModel().getColumn(0);
+        TableColumn ApprentishipscolumnToHide1 = Apprentishipstable.getColumnModel().getColumn(2);
+        TableColumn ApprentishipscolumnToHide2 = Apprentishipstable.getColumnModel().getColumn(3);
+
+        ApprentishipscolumnToHide0.setPreferredWidth(150);
+        ApprentishipscolumnToHide0.setMinWidth(150);
+        ApprentishipscolumnToHide0.setMaxWidth(150);
+        ApprentishipscolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer Apprentishipsdtcr = new DefaultTableCellRenderer();  
+        Apprentishipsdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        ApprentishipscolumnToHide0.setCellRenderer(Apprentishipsdtcr);
+
+        
+        ApprentishipscolumnToHide1.setPreferredWidth(0);
+        ApprentishipscolumnToHide1.setMinWidth(0);
+        ApprentishipscolumnToHide1.setMaxWidth(0);
+        ApprentishipscolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        ApprentishipscolumnToHide2.setPreferredWidth(0);
+        ApprentishipscolumnToHide2.setMinWidth(0);
+        ApprentishipscolumnToHide2.setMaxWidth(0);
+        ApprentishipscolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        
+        Apprentishipstable.setComponentPopupMenu(popupMenu);
+        Apprentishipstable.addMouseListener(new TableMouseListener(Apprentishipstable));
+        
+        
+        
+        
+        
+        
+        JScrollPane ApprentishipsscrollPane = new JScrollPane(Apprentishipstable);
+        ApprentishipsPanel.add(ApprentishipsscrollPane);
+        
+        
+        
+        //Avaliable Industries
+        
+        IndustriesPanel.setBounds(545,340,335,260);
+        IndustriesPanel.setBackground(Color.red);
+		
+        JLabel IndustriesLabel = new JLabel("Avaliable Indurstries");
+        IndustriesLabel.setBounds(50,0, 100, 100);
+        IndustriesPanel.add(IndustriesLabel);
+		
+        String[] IndustriescolumnNames = {"Industry"};
+        DefaultTableModel Industriesmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, IndustriescolumnNames);
+        // Create scrollable table
+        JTable Industriestable = new JTable(Industriesmodel);
+ 
+        
+        
+        
+        
+        JScrollPane IndustriesscrollPane = new JScrollPane(Industriestable);
+        IndustriesPanel.add(IndustriesscrollPane);
+        
+        
+        
+        
+        
+        
+		
+        JobSeekersPanel.setBounds(10,100,215,205);
+        JobSeekersPanel.setBackground(Color.yellow);
+		
+        VolunteeringPanel.setBounds(10,315,215,200);
+        VolunteeringPanel.setBackground(Color.black);
+		
+		
+		
+		
+        JobPanel.add(JobPostingPanel);
+        JobPanel.add(ApprentishipsPanel);
+        JobPanel.add(JobSeekersPanel);
+        JobPanel.add(VolunteeringPanel);
+        JobPanel.add(IndustriesPanel);
+
+		
+		
+		//End of Job Panel
+		
+		
+		//Start of Business Panel
+		
+        
+        
+        
+        
+
+		BusinessPanel.setBackground(Color.gray);
+		BusinessPanel.setLayout(null);
+		UnitsPanel.setBounds(545,340,335,260);
+		UnitsPanel.setBackground(Color.red);
+		
+		UnitsLabel = new JLabel("Rentable units");
+		UnitsPanel.add(UnitsLabel);
+        String[] UnitscolumnNames = {"Name", "Address", "Column 2", "Column 2"};
+        DefaultTableModel Unitsmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, UnitscolumnNames);
+        
+        
+        
+        
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+        
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
+        
+        
+        // Create scrollable table
+        Unitstable = new JTable(Unitsmodel);
+        TableColumn UnitscolumnToHide0 = Unitstable.getColumnModel().getColumn(0);
+        TableColumn UnitscolumnToHide1 = Unitstable.getColumnModel().getColumn(2);
+        TableColumn UnitscolumnToHide2 = Unitstable.getColumnModel().getColumn(3);
+
+        UnitscolumnToHide0.setPreferredWidth(150);
+        UnitscolumnToHide0.setMinWidth(150);
+        UnitscolumnToHide0.setMaxWidth(150);
+        UnitscolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer Unitsdtcr = new DefaultTableCellRenderer();  
+        Unitsdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        UnitscolumnToHide0.setCellRenderer(Unitsdtcr);
+
+        
+        UnitscolumnToHide1.setPreferredWidth(0);
+        UnitscolumnToHide1.setMinWidth(0);
+        UnitscolumnToHide1.setMaxWidth(0);
+        UnitscolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        UnitscolumnToHide2.setPreferredWidth(0);
+        UnitscolumnToHide2.setMinWidth(0);
+        UnitscolumnToHide2.setMaxWidth(0);
+        UnitscolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        
+        Unitstable.setComponentPopupMenu(popupMenu);
+        Unitstable.addMouseListener(new TableMouseListener(Unitstable));
+        
+        JScrollPane UnitsscrollPane = new JScrollPane(Unitstable);
+        
+        
+        UnitsPanel.add(UnitsscrollPane);
+
+
+        NewBuinessPanel.setBounds(545,10,330,325);
+        NewBuinessPanel.setBackground(Color.red);
+		
+        NewBuinessLabel = new JLabel("New Businesses");
+        NewBuinessLabel.setBounds(50,0, 100, 100);
+        NewBuinessPanel.add(NewBuinessLabel);
+		
+		
+		
+        String[] NewBuinesscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
+        DefaultTableModel NewBuinessmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, NewBuinesscolumnNames);
+        // Create scrollable table
+        
+        
+        
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+        
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
+        
+        
+        // Create scrollable table
+        NewBuinesstable = new JTable(NewBuinessmodel);
+        TableColumn NewBuinesscolumnToHide0 = NewBuinesstable.getColumnModel().getColumn(0);
+        TableColumn NewBuinesscolumnToHide1 = NewBuinesstable.getColumnModel().getColumn(2);
+        TableColumn NewBuinesscolumnToHide2 = NewBuinesstable.getColumnModel().getColumn(3);
+
+        NewBuinesscolumnToHide0.setPreferredWidth(150);
+        NewBuinesscolumnToHide0.setMinWidth(150);
+        NewBuinesscolumnToHide0.setMaxWidth(150);
+        NewBuinesscolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer NewBuinessdtcr = new DefaultTableCellRenderer();  
+        NewBuinessdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        NewBuinesscolumnToHide0.setCellRenderer(NewBuinessdtcr);
+
+        
+        NewBuinesscolumnToHide1.setPreferredWidth(0);
+        NewBuinesscolumnToHide1.setMinWidth(0);
+        NewBuinesscolumnToHide1.setMaxWidth(0);
+        NewBuinesscolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        NewBuinesscolumnToHide2.setPreferredWidth(0);
+        NewBuinesscolumnToHide2.setMinWidth(0);
+        NewBuinesscolumnToHide2.setMaxWidth(0);
+        NewBuinesscolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        NewBuinesstable.setComponentPopupMenu(popupMenu);
+        NewBuinesstable.addMouseListener(new TableMouseListener(NewBuinesstable));
+
+        JScrollPane NewBuinessscrollPane = new JScrollPane(NewBuinesstable);
+        NewBuinessPanel.add(NewBuinessscrollPane);
+        
+        //News Panel
+        
+
+        BuinessNewsPanel.setBounds(235,10,300,590);
+        BuinessNewsPanel.setBackground(Color.red);
+		
+        BuinessNewsLabel = new JLabel("Business News");
+        BuinessNewsLabel.setBounds(50,0, 100, 100);
+        BuinessNewsPanel.add(BuinessNewsLabel);
+		
+		
+		
+        String[] BuinessNewscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
+        DefaultTableModel BuinessNewsmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, BuinessNewscolumnNames);
+        // Create scrollable table
+        
+        
+        
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+        
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
+        
+        
+        // Create scrollable table
+        BuinessNewstable = new JTable(BuinessNewsmodel);
+        TableColumn BuinessNewscolumnToHide0 = BuinessNewstable.getColumnModel().getColumn(0);
+        TableColumn BuinessNewscolumnToHide1 = BuinessNewstable.getColumnModel().getColumn(2);
+        TableColumn BuinessNewscolumnToHide2 = BuinessNewstable.getColumnModel().getColumn(3);
+
+        BuinessNewscolumnToHide0.setPreferredWidth(150);
+        BuinessNewscolumnToHide0.setMinWidth(150);
+        BuinessNewscolumnToHide0.setMaxWidth(150);
+        BuinessNewscolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer BuinessNewsdtcr = new DefaultTableCellRenderer();  
+        BuinessNewsdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        BuinessNewscolumnToHide0.setCellRenderer(BuinessNewsdtcr);
+
+        
+        BuinessNewscolumnToHide1.setPreferredWidth(0);
+        BuinessNewscolumnToHide1.setMinWidth(0);
+        BuinessNewscolumnToHide1.setMaxWidth(0);
+        BuinessNewscolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        BuinessNewscolumnToHide2.setPreferredWidth(0);
+        BuinessNewscolumnToHide2.setMinWidth(0);
+        BuinessNewscolumnToHide2.setMaxWidth(0);
+        BuinessNewscolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        BuinessNewstable.setComponentPopupMenu(popupMenu);
+        BuinessNewstable.addMouseListener(new TableMouseListener(BuinessNewstable));
+
+        JScrollPane BuinessNewsscrollPane = new JScrollPane(BuinessNewstable);
+        BuinessNewsPanel.add(BuinessNewsscrollPane);
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
+		
+        OpportunitiesPanel.setBounds(10,100,215,205);
+        OpportunitiesPanel.setBackground(Color.yellow);
+		
+		
+		
+		
+        BusinessPanel.add(NewBuinessPanel);
+        BusinessPanel.add(UnitsPanel);
+        BusinessPanel.add(OpportunitiesPanel);
+        BusinessPanel.add(BuinessNewsPanel);
+
+        
+        
+        
+        
+        
+        
+		
+		//End of Business Panel
 		
 		
 		
@@ -410,7 +988,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		Navigate.add(Tourist);
 		Navigate.add(Student);
 		Navigate.add(Job);
-		Navigate.add(Buisness);
+		Navigate.add(Business);
 		Profile.add(ChangeDetails);
 		Profile.add(LogOut);
 		
@@ -420,41 +998,22 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		
-		Tourist.addActionListener(null);
-		Student.addActionListener(null);
-		Job.addActionListener(null);
-		Buisness.addActionListener(null);
+		Tourist.addActionListener(new GUI()); //Creates ActionListeners for buttons
+		Student.addActionListener(new GUI());
+		Job.addActionListener(new GUI());
+		Business.addActionListener(new GUI());
+		Quit.addActionListener(new GUI());
+		ChangeDetails.addActionListener(new GUI());
+		LogOut.addActionListener(new GUI());
+
+
+
 		
-		frame.setJMenuBar(MenuBar);
-		
-		frame.add(WhatsonPanel);
-		frame.add(MapPanel);
-		frame.add(ResterauntPanel);
-		frame.add(HotelPanel);
+
 		frame.add(TouristPanel);
-		
-		
 
-		//TouristPanel.setBackground(Color.red);
-		//StudentPanel.setBackground(Color.red);
-		//JobPanel.setBackground(Color.red);
-		//BuisnessPanel.setBackground(Color.red);
+		frame.setJMenuBar(MenuBar);
 
-		;
-		//TouristPanel.setLayout(null);
-		//StudentPanel.setLayout(null);
-		//JobPanel.setLayout(null);
-		//BuisnessPanel.setLayout(null);
-
-		
-		
-		
-		
-		
-		//frame.add(TouristPanel);
-		//frame.add(StudentPanel);
-		//frame.add(JobPanel);
-		//frame.add(BuisnessPanel);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
@@ -468,12 +1027,13 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	}
 
 	
-	private void ExpandGUI() {
+	private void ChangeDetails() {
 		
 		
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		 System.out.println(e.getActionCommand());
 		
 		LoggedIn = true; //temp
 		if(!LoggedIn) { 
@@ -602,6 +1162,88 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				CopyLink(e);
 				
 			}
+			
+		}
+		
+		if(e.getActionCommand().equals("Quit")) {
+	        System.exit(0); // Terminates the program
+
+		}
+		
+		if(e.getActionCommand().equals("Tourist")) {
+			System.out.println("Tourist print");
+			
+			
+			frame.remove(StudentPanel);
+			frame.add(TouristPanel);
+			frame.remove(JobPanel);
+			frame.remove(BusinessPanel);
+			TouristPanel.setVisible(true);
+			StudentPanel.setVisible(false);
+			JobPanel.setVisible(false);
+			BusinessPanel.setVisible(false);
+			
+			frame.revalidate();
+			frame.repaint();
+			
+			
+		}else if(e.getActionCommand().equals("Student")) {
+			System.out.println("Student print");
+			frame.remove(TouristPanel);
+			frame.add(StudentPanel);
+			frame.remove(JobPanel);
+			frame.remove(BusinessPanel);
+
+
+			TouristPanel.setVisible(false);
+			StudentPanel.setVisible(true);
+			JobPanel.setVisible(false);
+			BusinessPanel.setVisible(false);
+			frame.revalidate();
+			frame.repaint();
+
+			
+		}else if(e.getActionCommand().equals("Job")) {
+			System.out.println("Job print");
+			
+			frame.remove(TouristPanel);
+			frame.remove(StudentPanel);
+			frame.add(JobPanel);
+			frame.remove(BusinessPanel);
+
+			
+			
+			TouristPanel.setVisible(false);
+			StudentPanel.setVisible(false);
+			JobPanel.setVisible(true);
+			BusinessPanel.setVisible(false);
+
+			
+		}else if(e.getActionCommand().equals("Business")) {
+			System.out.println("Business print");
+			frame.remove(TouristPanel);
+			frame.remove(StudentPanel);
+			frame.remove(JobPanel);
+			frame.add(BusinessPanel);
+			TouristPanel.setVisible(false);
+			StudentPanel.setVisible(false);
+			JobPanel.setVisible(false);
+			BusinessPanel.setVisible(true);
+		}
+		
+		
+		
+		if(e.getActionCommand().equals("Log Out")) {
+			
+			
+			frame.dispose();
+			LoggedIn = false;
+			try {
+				Login();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
 			
 		}
 		
