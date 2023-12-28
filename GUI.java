@@ -62,6 +62,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JPanel HotelPanel = new JPanel();  //Tourist Sub-Panels
 	private static JPanel ResterauntPanel = new JPanel();
 	private static JPanel WhatsonPanel = new JPanel();
+	private static JTable WhatsonTable;
+	private static JLabel WhatsonLabel; 
 	private static JPanel MapPanel = new JPanel();
 	private static JLabel HotelLabel; 
 	private static JLabel ResterauntLabel;
@@ -317,6 +319,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         // Create scrollable table
         Hoteltable = new JTable(Hotelmodel);
+
+
         TableColumn HotelcolumnToHide0 = Hoteltable.getColumnModel().getColumn(0);
         TableColumn HotelcolumnToHide1 = Hoteltable.getColumnModel().getColumn(2);
         TableColumn HotelcolumnToHide2 = Hoteltable.getColumnModel().getColumn(3);
@@ -349,10 +353,10 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         HotelPanel.add(HotelscrollPane);
 
-		HotelPanel.setBounds(455,250,420,350);
+		HotelPanel.setBounds(455,300,420,300);
 
-		ResterauntPanel.setBounds(10,200,430,400);
-		ResterauntPanel.setBackground(Color.red);
+		ResterauntPanel.setBounds(455,10,420,280);//455,10,420,230
+		ResterauntPanel.setBackground(Color.red);//10,200,430,400
 		
 		ResterauntLabel = new JLabel("Resteraunts");
 		ResterauntLabel.setBounds(50,0, 100, 100);
@@ -361,7 +365,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
         String[] ResterauntcolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel Resterauntmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, ResterauntcolumnNames);
+        DefaultTableModel Resterauntmodel = new DefaultTableModel(ApplicationDriver.ResterauntsTable, ResterauntcolumnNames);
         // Create scrollable table
         JTable Resteraunttable = new JTable(Resterauntmodel);
         
@@ -416,10 +420,72 @@ public class GUI extends ApplicationDriver implements ActionListener{
         JScrollPane ResterauntscrollPane = new JScrollPane(Resteraunttable);
         ResterauntPanel.add(ResterauntscrollPane);
 		
-		WhatsonPanel.setBounds(10,10,430,180);
+		WhatsonPanel.setBounds(10,260,430,340);
 		WhatsonPanel.setBackground(Color.yellow);
 		
-		MapPanel.setBounds(455,10,420,230);
+		
+		WhatsonLabel = new JLabel("Whats on?");
+		WhatsonPanel.add(WhatsonLabel);
+        String[] WhatsoncolumnNames = {"Recent News"};
+        DefaultTableModel WhatsOnmodel = new DefaultTableModel(ApplicationDriver.WhatsOnTable, WhatsoncolumnNames);
+        
+        
+        
+        
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+        
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
+        
+        
+        // Create scrollable table
+        JTable WhatsOnTable = new JTable(WhatsOnmodel);
+        /*
+        TableColumn WhatsOnTablecolumnToHide0 = WhatsOnTable.getColumnModel().getColumn(0);
+        TableColumn WhatsOnTablecolumnToHide1 = WhatsOnTable.getColumnModel().getColumn(2);
+        TableColumn WhatsOnTablecolumnToHide2 = WhatsOnTable.getColumnModel().getColumn(3);
+        TableColumn WhatsOnTablecolumnToHide3 = WhatsOnTable.getColumnModel().getColumn(1);
+
+        WhatsOnTablecolumnToHide0.setPreferredWidth(150);
+        WhatsOnTablecolumnToHide0.setMinWidth(150);
+        WhatsOnTablecolumnToHide0.setMaxWidth(150);
+        WhatsOnTablecolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer WhatsOndtcr = new DefaultTableCellRenderer();  
+        WhatsOndtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        WhatsOnTablecolumnToHide0.setCellRenderer(WhatsOndtcr);
+
+        
+        WhatsOnTablecolumnToHide1.setPreferredWidth(0);
+        WhatsOnTablecolumnToHide1.setMinWidth(0);
+        WhatsOnTablecolumnToHide1.setMaxWidth(0);
+        WhatsOnTablecolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        WhatsOnTablecolumnToHide2.setPreferredWidth(0);
+        WhatsOnTablecolumnToHide2.setMinWidth(0);
+        WhatsOnTablecolumnToHide2.setMaxWidth(0);
+        WhatsOnTablecolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        WhatsOnTablecolumnToHide3.setPreferredWidth(0);
+        WhatsOnTablecolumnToHide3.setMinWidth(0);
+        WhatsOnTablecolumnToHide3.setMaxWidth(0);
+        WhatsOnTablecolumnToHide3.setResizable(false);  // Prevent resizing
+        */
+        
+        WhatsOnTable.setComponentPopupMenu(popupMenu);
+        WhatsOnTable.addMouseListener(new TableMouseListener(WhatsOnTable));
+        
+        JScrollPane WhatsOnscrollPane = new JScrollPane(WhatsOnTable);
+        
+        
+        WhatsonPanel.add(WhatsOnscrollPane);
+		
+		MapPanel.setBounds(10,10,430,240);
 		MapPanel.setBackground(Color.black);
 		
 		
@@ -444,10 +510,10 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		AccomidationPanel.setBounds(455,250,420,350);
 		AccomidationPanel.setBackground(Color.red);
 		
-		AccomidationLabel = new JLabel("Resteraunt");
+		AccomidationLabel = new JLabel("Avaliable Accomidation");
 		AccomidationPanel.add(AccomidationLabel);
         String[] AccomidationcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
-        DefaultTableModel Accomidationmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, AccomidationcolumnNames);
+        DefaultTableModel Accomidationmodel = new DefaultTableModel(ApplicationDriver.AccomidationTable, AccomidationcolumnNames);
         
         
         
@@ -510,7 +576,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
         String[] ColUnicolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel ColUnimodel = new DefaultTableModel(ApplicationDriver.HotelsTable, ColUnicolumnNames);
+        DefaultTableModel ColUnimodel = new DefaultTableModel(ApplicationDriver.UniColTable, ColUnicolumnNames);
         // Create scrollable table
         
         
@@ -597,7 +663,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		JobPostingLabel = new JLabel("Job Posting");
 		JobPostingPanel.add(JobPostingLabel);
         String[] JobPostingcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
-        DefaultTableModel JobPostingmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, JobPostingcolumnNames);
+        DefaultTableModel JobPostingmodel = new DefaultTableModel(ApplicationDriver.JobPostTable, JobPostingcolumnNames);
         
         
         
@@ -644,7 +710,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
         JobPostingtable.addMouseListener(new TableMouseListener(JobPostingtable));
         
         JScrollPane JobPostingscrollPane = new JScrollPane(JobPostingtable);
-        
+        JobPostingscrollPane.setPreferredSize(new Dimension(300,590));
+
         
         JobPostingPanel.add(JobPostingscrollPane);
 
@@ -659,7 +726,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
         String[] ApprentishipscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel Apprentishipsmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, ApprentishipscolumnNames);
+        DefaultTableModel Apprentishipsmodel = new DefaultTableModel(ApplicationDriver.ApprentishipTable, ApprentishipscolumnNames);
         // Create scrollable table
         
         
@@ -711,6 +778,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         
         JScrollPane ApprentishipsscrollPane = new JScrollPane(Apprentishipstable);
+        ApprentishipsscrollPane.setPreferredSize(new Dimension(330,325));
+
         ApprentishipsPanel.add(ApprentishipsscrollPane);
         
         
@@ -734,6 +803,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         
         JScrollPane IndustriesscrollPane = new JScrollPane(Industriestable);
+        IndustriesscrollPane.setPreferredSize(new Dimension(335,260));
+
         IndustriesPanel.add(IndustriesscrollPane);
         
         
@@ -777,7 +848,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		UnitsLabel = new JLabel("Rentable units");
 		UnitsPanel.add(UnitsLabel);
         String[] UnitscolumnNames = {"Name", "Address", "Column 2", "Column 2"};
-        DefaultTableModel Unitsmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, UnitscolumnNames);
+        DefaultTableModel Unitsmodel = new DefaultTableModel(ApplicationDriver.RentableSpacesTable, UnitscolumnNames);
         
         
         
@@ -796,6 +867,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         // Create scrollable table
         Unitstable = new JTable(Unitsmodel);
+        
         TableColumn UnitscolumnToHide0 = Unitstable.getColumnModel().getColumn(0);
         TableColumn UnitscolumnToHide1 = Unitstable.getColumnModel().getColumn(2);
         TableColumn UnitscolumnToHide2 = Unitstable.getColumnModel().getColumn(3);
@@ -825,7 +897,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         JScrollPane UnitsscrollPane = new JScrollPane(Unitstable);
         
-        
+        UnitsscrollPane.setPreferredSize(new Dimension(334, 258));
         UnitsPanel.add(UnitsscrollPane);
 
 
@@ -839,7 +911,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
         String[] NewBuinesscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel NewBuinessmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, NewBuinesscolumnNames);
+        DefaultTableModel NewBuinessmodel = new DefaultTableModel(ApplicationDriver.NewBuisnessesTable, NewBuinesscolumnNames);
         // Create scrollable table
         
         
@@ -858,6 +930,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         // Create scrollable table
         NewBuinesstable = new JTable(NewBuinessmodel);
+        
+
         TableColumn NewBuinesscolumnToHide0 = NewBuinesstable.getColumnModel().getColumn(0);
         TableColumn NewBuinesscolumnToHide1 = NewBuinesstable.getColumnModel().getColumn(2);
         TableColumn NewBuinesscolumnToHide2 = NewBuinesstable.getColumnModel().getColumn(3);
@@ -885,6 +959,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         NewBuinesstable.addMouseListener(new TableMouseListener(NewBuinesstable));
 
         JScrollPane NewBuinessscrollPane = new JScrollPane(NewBuinesstable);
+        NewBuinessscrollPane.setPreferredSize(new Dimension(330,325));
         NewBuinessPanel.add(NewBuinessscrollPane);
         
         //News Panel
@@ -900,7 +975,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
         String[] BuinessNewscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel BuinessNewsmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, BuinessNewscolumnNames);
+        DefaultTableModel BuinessNewsmodel = new DefaultTableModel(ApplicationDriver.BusinessNewsTable, BuinessNewscolumnNames);
         // Create scrollable table
         
         
@@ -946,6 +1021,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
         BuinessNewstable.addMouseListener(new TableMouseListener(BuinessNewstable));
 
         JScrollPane BuinessNewsscrollPane = new JScrollPane(BuinessNewstable);
+        BuinessNewsscrollPane.setPreferredSize(new Dimension(300,590));
+
         BuinessNewsPanel.add(BuinessNewsscrollPane);
         
         
