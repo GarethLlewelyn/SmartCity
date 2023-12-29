@@ -13,7 +13,7 @@ public class ApplicationDriver {
     
 	public static String[][] Hotels; //Tourist global variables
 	public static String[][] Resteraunts;
-	public static String[][] WhatsOn;
+	public static String[][] News;
 	public static String[][] Accomidation; //Student global variables
 	public static String[][] UniCol;
 	public static String[][] JobPost;//Job global variables
@@ -25,7 +25,7 @@ public class ApplicationDriver {
 	
 	public static String[][] HotelsTable; 
 	public static String[][] ResterauntsTable;
-	public static String[][] WhatsOnTable;
+	public static String[][] NewsTable;
 	public static String[][] AccomidationTable; //Student global variables
 	public static String[][] UniColTable;
 	public static String[][] JobPostTable;//Job global variables
@@ -39,6 +39,15 @@ public class ApplicationDriver {
 	public static void main(String[] args) throws SQLException, IOException {
 		DBInstance = new DatabaseDriver("root", "", "127.0.0.1", "smartcity", 3306); //Start DB Intance for global access
 		
+		if(!LoggedIn) {
+
+			//new GUI();
+			GUI.Login();
+		}else if(LoggedIn) {
+			
+			System.out.println("SIGN IN SUCCESS");
+			GUI.SmartCityPage();
+		}
 		
 
 		
@@ -47,7 +56,7 @@ public class ApplicationDriver {
         tourism.ConvertTable();
         HotelsTable = tourism.HotelsTable;
         ResterauntsTable = tourism.ResterauntsTable;
-        WhatsOnTable = tourism.WhatsOnTable;
+        NewsTable = tourism.NewsTable;
         Student student = new Student();  // Retrieve Student information from database and keep as global variable
         student.RetrieveTable();
         student.ConvertTable();
@@ -66,15 +75,7 @@ public class ApplicationDriver {
         BusinessNewsTable = business.BusinessNewsTable;
 
 		
-		if(!LoggedIn) {
 
-			//new GUI();
-			GUI.SmartCityPage();
-		}else {
-			
-			System.out.println("SIGN IN SUCCESS");
-		}
-		
 
 		
 		

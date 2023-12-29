@@ -19,22 +19,22 @@ public class Tourism extends ApplicationDriver implements SmartCityApp{
 	
 	public String[][] Hotels;
 	public String[][] Resteraunts;
-	public String[][] WhatsOn;
+	public String[][] News;
 	
 	public String[][] HotelsTable;
 	public String[][] ResterauntsTable;
-	public String[][] WhatsOnTable;
+	public String[][] NewsTable;
 	
 	public void RetrieveTable() throws SQLException {
 		
 		Hotels = DBInstance.Retrievetable("hotels");  
 		Resteraunts = DBInstance.Retrievetable("resteraunt");  
-		WhatsOn = DBInstance.Retrievetable("whatson");  
+		News = DBInstance.Retrievetable("news");  
         System.out.println("complete Tourist");
         
         ApplicationDriver.Hotels = Hotels;
         ApplicationDriver.Resteraunts = Resteraunts;
-        ApplicationDriver.WhatsOn = WhatsOn;
+        ApplicationDriver.News = News;
 
         
 
@@ -48,7 +48,7 @@ public class Tourism extends ApplicationDriver implements SmartCityApp{
     	
     	 HotelsTable = new String[Hotels.length][4]; 
     	 ResterauntsTable = new String[Resteraunts.length][4]; 
-    	 WhatsOnTable = new String[WhatsOn.length][4]; 
+    	 NewsTable = new String[News.length][4]; 
 
 
         for (int i = 0; i < Hotels.length; i++) {
@@ -74,12 +74,12 @@ public class Tourism extends ApplicationDriver implements SmartCityApp{
     		
     		}
         
-        for (int i = 0; i < WhatsOn.length; i++) {
+        for (int i = 0; i < News.length; i++) {
     		
-	        	WhatsOnTable[i][0] = WhatsOn[i][1];
-	        	WhatsOnTable[i][1] = WhatsOn[i][2];
-	        	WhatsOnTable[i][2] = WhatsOn[i][5];
-	        	WhatsOnTable[i][3] = WhatsOn[i][6];
+        		NewsTable[i][0] = News[i][1];
+        		NewsTable[i][1] = News[i][2];
+        		NewsTable[i][2] = News[i][3];
+	        	NewsTable[i][3] = News[i][4];
 
     		
     		
