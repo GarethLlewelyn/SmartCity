@@ -113,7 +113,7 @@ public class DatabaseDriver {
         	}else {
         		
         		Result[0] = "Success";
-            	for(int J = 1; J <= columnCount; J++ ) {
+            	for(int J = 1; J <= columnCount; J++ ) { //starts at [1] to allow for success message.
             		if(J != 4) {
             			Result[J] = resultSet.getString(J); //Load Results full of the Users Information exluding password
             			}
@@ -168,5 +168,28 @@ public class DatabaseDriver {
 	
 
 	}
+	
+	public boolean UserUpdate(int ID, String Name, String Email) throws SQLException {
+		
+		System.out.println(ID + " " + Name + " " + Email);
+
+		PreparedStatement UserUpdateStmt = conn.prepareStatement("Update user SET FullName=?, Email=? WHERE ID=?");
+		UserUpdateStmt.setInt(3, ID);
+		UserUpdateStmt.setString(1, Name);
+		UserUpdateStmt.setString(2, Email);
+
+		
+		if(UserUpdateStmt.executeUpdate() == 1) {
+			System.out.println("Success");
+
+			return true;
+		}else {
+			return false;
+		}
+
+		
+
+	}
+	
 }
 

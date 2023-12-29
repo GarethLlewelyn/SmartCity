@@ -36,7 +36,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JLabel RegisterPageFullNameLabel; 
 	private static JTextField RegisterPageFullNameText;
 	
-	private static JLabel RegisterPagePasswordlabel;
+	private static JLabel RegisterPagePasswordlabel; //Register page variables
 	private static JPasswordField RegisterPagePasswordText;
 	private static JLabel RegisterPageRePasswordlabel;
 	private static JPasswordField RegisterPageRePasswordText;
@@ -62,7 +62,6 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JPanel HotelPanel = new JPanel();  //Tourist Sub-Panels
 	private static JPanel ResterauntPanel = new JPanel();
 	private static JPanel WhatsonPanel = new JPanel();
-	private static JTable WhatsonTable;
 	private static JLabel WhatsonLabel; 
 	private static JPanel MapPanel = new JPanel();
 	private static JLabel HotelLabel; 
@@ -103,6 +102,19 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JTable BuinessNewstable;
 	
     private static JPopupMenu popupMenu;
+    
+    
+    
+	private static JPanel ChangeDetailspanel;//Change Details variables
+	private static JFrame ChangeDetailframe;
+	private static JLabel ChangeDetailsPageFullNameLabel; 
+	private static JTextField ChangeDetailsFullNameText;
+	private static JLabel ChangeDetailsEmaillabel;
+	private static JTextField ChangeDetailsEmailText;
+	private static JButton ChangeDetailsPageButton;
+	private static JLabel ChangeDetailsSuccessLabel = new JLabel();
+    private int clicks = 0; //confirm changes variable
+
 
 	
 	public static boolean Login() throws IOException {
@@ -426,8 +438,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		WhatsonLabel = new JLabel("Whats on?");
 		WhatsonPanel.add(WhatsonLabel);
-        String[] WhatsoncolumnNames = {"Recent News"};
-        DefaultTableModel WhatsOnmodel = new DefaultTableModel(ApplicationDriver.WhatsOnTable, WhatsoncolumnNames);
+        String[] WhatsoncolumnNames = {"Recent News", "test", "test", "test"};
+        DefaultTableModel WhatsOnmodel = new DefaultTableModel(ApplicationDriver.News, WhatsoncolumnNames);
         
         
         
@@ -446,36 +458,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         // Create scrollable table
         JTable WhatsOnTable = new JTable(WhatsOnmodel);
-        /*
-        TableColumn WhatsOnTablecolumnToHide0 = WhatsOnTable.getColumnModel().getColumn(0);
-        TableColumn WhatsOnTablecolumnToHide1 = WhatsOnTable.getColumnModel().getColumn(2);
-        TableColumn WhatsOnTablecolumnToHide2 = WhatsOnTable.getColumnModel().getColumn(3);
-        TableColumn WhatsOnTablecolumnToHide3 = WhatsOnTable.getColumnModel().getColumn(1);
 
-        WhatsOnTablecolumnToHide0.setPreferredWidth(150);
-        WhatsOnTablecolumnToHide0.setMinWidth(150);
-        WhatsOnTablecolumnToHide0.setMaxWidth(150);
-        WhatsOnTablecolumnToHide0.setResizable(false);  // Prevent resizing
-        DefaultTableCellRenderer WhatsOndtcr = new DefaultTableCellRenderer();  
-        WhatsOndtcr.setHorizontalAlignment(SwingConstants.CENTER);
-        WhatsOnTablecolumnToHide0.setCellRenderer(WhatsOndtcr);
-
-        
-        WhatsOnTablecolumnToHide1.setPreferredWidth(0);
-        WhatsOnTablecolumnToHide1.setMinWidth(0);
-        WhatsOnTablecolumnToHide1.setMaxWidth(0);
-        WhatsOnTablecolumnToHide1.setResizable(false);  // Prevent resizing
-        
-        WhatsOnTablecolumnToHide2.setPreferredWidth(0);
-        WhatsOnTablecolumnToHide2.setMinWidth(0);
-        WhatsOnTablecolumnToHide2.setMaxWidth(0);
-        WhatsOnTablecolumnToHide2.setResizable(false);  // Prevent resizing
-        
-        WhatsOnTablecolumnToHide3.setPreferredWidth(0);
-        WhatsOnTablecolumnToHide3.setMinWidth(0);
-        WhatsOnTablecolumnToHide3.setMaxWidth(0);
-        WhatsOnTablecolumnToHide3.setResizable(false);  // Prevent resizing
-        */
         
         WhatsOnTable.setComponentPopupMenu(popupMenu);
         WhatsOnTable.addMouseListener(new TableMouseListener(WhatsOnTable));
@@ -1094,6 +1077,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
+
+
 	
 	public GUI() {
 		
@@ -1107,12 +1092,66 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private void ChangeDetails() {
 		
 		
+		
+		ChangeDetailspanel = new JPanel();
+		ChangeDetailframe = new JFrame();
+		ChangeDetailframe.setSize(400,260);
+		ChangeDetailframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //DISPOSE_ON_CLOSE stops exit button closing the entire program
+		ChangeDetailframe.add(ChangeDetailspanel);
+		
+		ChangeDetailspanel.setLayout(null);
+		
+		JLabel ChangeDetailsLabel = new JLabel("Change account details");
+		ChangeDetailsLabel.setBounds(130, 20, 170, 25);
+		ChangeDetailspanel.add(ChangeDetailsLabel);
+		
+		
+		ChangeDetailsPageFullNameLabel = new JLabel("Full Name");
+		ChangeDetailsPageFullNameLabel.setBounds(167, 50, 80, 25);
+		ChangeDetailspanel.add(ChangeDetailsPageFullNameLabel);
+		
+		ChangeDetailsFullNameText = new JTextField(20);
+		ChangeDetailsFullNameText.setBounds(110, 70, 170, 25);
+		ChangeDetailsFullNameText.setText(ApplicationDriver.UserResult[3]);
+		ChangeDetailspanel.add(ChangeDetailsFullNameText);
+		
+		ChangeDetailsEmaillabel = new JLabel("Email");
+		ChangeDetailsEmaillabel.setBounds(177, 100, 80, 25);
+		ChangeDetailspanel.add(ChangeDetailsEmaillabel);
+		
+		ChangeDetailsEmailText = new JTextField(100);
+		ChangeDetailsEmailText.setBounds(110, 120, 170, 25);
+		ChangeDetailsEmailText.setText(ApplicationDriver.UserResult[5]);
+		ChangeDetailspanel.add(ChangeDetailsEmailText);
+		
+		
+		ChangeDetailsPageButton = new JButton("Update Details");
+		ChangeDetailsPageButton.setBounds(110, 150, 170,25);
+		ChangeDetailsPageButton.addActionListener(new GUI());
+		ChangeDetailspanel.add(ChangeDetailsPageButton);
+		
+		ChangeDetailsSuccessLabel = new JLabel("");
+		ChangeDetailsSuccessLabel.setBounds(110, 180, 300, 25);
+		ChangeDetailspanel.add(ChangeDetailsSuccessLabel);
+		
+		
+		
+		
+		ChangeDetailframe.setLocationRelativeTo(null);
+		ChangeDetailframe.setVisible(true);
+
+		
+		
+		
+		
+		
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		
+
 		 System.out.println(e.getActionCommand());
 		
-		LoggedIn = true; //temp
 		if(!LoggedIn) { 
 			
 			
@@ -1138,8 +1177,17 @@ public class GUI extends ApplicationDriver implements ActionListener{
 					SuccessLabel.setText("Wrong Username or Password!");
 				}else if(ApplicationDriver.UserResult[0].equals("Success")){
 					System.out.println("LogIn Success");
-					SuccessLabel.setText("Temp Label Success");
+					frame.dispose();
+					ApplicationDriver.LoggedIn = true;
 					LoggedIn = true;
+					
+					try {
+						SmartCityPage();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
 				}
 				
 			
@@ -1225,22 +1273,64 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				
 			}
 		}else{
+
+
+			if (e.getSource() instanceof JMenuItem) {//Is the e's source a JMenuItem
+	
+				JMenuItem Tablemenu = (JMenuItem) e.getSource(); //Gets component source of the tables. used for right click feature
+				String TableMenuToString = Tablemenu.toString();
+				String TableMenuText = TableMenuToString.substring(TableMenuToString.indexOf("text=")).replace("]", "").replace("text=", ""); //Accesses the "Text=" key in the JTableMenu array for the buttons text
+	
+				if(TableMenuText.equals("Expand")) {
+	
+					Expand(e);
+					
+				}else if(TableMenuText.equals("Copy Link")) {
+					CopyLink(e);
+					
+				}
 			
-
-			JMenuItem Tablemenu = (JMenuItem) e.getSource();
-
-			String TableMenuToString = Tablemenu.toString();
-			String TableMenuText = TableMenuToString.substring(TableMenuToString.indexOf("text=")).replace("]", "").replace("text=", ""); //Accesses the "Text=" key in the JTableMenu array for the buttons text
-			if(TableMenuText.equals("Expand")) {
-
-				Expand(e);
+			}
+			
+			if(e.getActionCommand().equals("Update Details") || e.getActionCommand().equals("Confirm Update")) {
 				
-			}else if(TableMenuText.equals("Copy Link")) {
-				CopyLink(e);
 				
+                clicks++;
+                if (clicks == 1) {
+                	ChangeDetailsPageButton.setText("Confirm Update");
+                }else if (clicks == 2) {
+                	clicks = 0;
+                	ChangeDetailsPageButton.setText("Update Details");
+
+					String FullName = ChangeDetailsFullNameText.getText();
+					String Email = ChangeDetailsEmailText.getText();
+	
+					if(!ApplicationDriver.UserResult[3].equals(FullName) || !ApplicationDriver.UserResult[5].equals(Email)) {
+						
+						
+	
+						try {
+							if(DBInstance.UserUpdate(Integer.parseInt(ApplicationDriver.UserResult[1]), FullName, Email)) {
+								System.out.println("Update made");
+								ChangeDetailsSuccessLabel.setText("Details Updated");
+	
+							}
+						} catch (NumberFormatException | SQLException e1) {
+							e1.printStackTrace();
+						}
+						
+					}else {
+						ChangeDetailsSuccessLabel.setText("No changes made");
+						System.out.println("No changes made");
+					}
+                }
 			}
 			
 		}
+		
+		
+		
+
 		
 		if(e.getActionCommand().equals("Quit")) {
 	        System.exit(0); // Terminates the program
@@ -1321,6 +1411,10 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				e1.printStackTrace();
 			}
 
+			
+		}
+		if(e.getActionCommand().equals("Change Details")) {
+			ChangeDetails();
 			
 		}
 		
