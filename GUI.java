@@ -114,6 +114,23 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JButton ChangeDetailsPageButton;
 	private static JLabel ChangeDetailsSuccessLabel = new JLabel();
     private int clicks = 0; //confirm changes variable
+    
+    
+    
+	private JFrame AdminNavFrame; //Admin Navigation Panel
+	private JPanel AdminNavPanel;
+	private JLabel AdminNavLabel;
+	private JButton SmartCityNavButton;
+	private JButton UserVerificationNavButton;
+	private JButton RecordViewerNavButton;
+	private JPanel AdminUserVerificationPanel;
+	private JFrame AdminUserVerificationFrame;
+	private JTable UserVerificationTable;
+	private String[][] Users;
+	private JButton VerifyUserRowButton;
+	private JButton DeleteUserButton;
+	private int selectedRow;
+	private int userId;
 
 
 	
@@ -1067,6 +1084,13 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		LogOut.addActionListener(new GUI());
 
 
+		
+		
+		
+		
+		
+		
+		
 
 		
 
@@ -1085,6 +1109,139 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		
+		
+	}
+	
+	
+	private void AdminNavigator() {
+		
+		AdminNavPanel = new JPanel();
+		AdminNavFrame = new JFrame();
+		AdminNavFrame.setSize(300,400);
+		AdminNavFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		AdminNavFrame.add(AdminNavPanel);
+		
+		
+		AdminNavLabel = new JLabel("Admin Navigation Panel");
+		AdminNavLabel.setBounds(150, 30, 100, 25);
+		AdminNavPanel.add(AdminNavLabel);
+		
+		
+		
+		SmartCityNavButton = new JButton("Navigate to Smart City App");
+		SmartCityNavButton.setBounds(50, 50, 200,50);
+		SmartCityNavButton.addActionListener(new GUI());
+		AdminNavPanel.add(SmartCityNavButton);
+		
+		UserVerificationNavButton = new JButton("Navigate to User Verification");
+		UserVerificationNavButton.setBounds(50, 150, 200,50);
+		UserVerificationNavButton.addActionListener(new GUI());
+		AdminNavPanel.add(UserVerificationNavButton);
+		
+		RecordViewerNavButton = new JButton("Navigate to Record Viewer");
+		RecordViewerNavButton.setBounds(50, 250, 200,50);
+		RecordViewerNavButton.addActionListener(new GUI());
+		AdminNavPanel.add(RecordViewerNavButton);
+		
+		
+		
+		AdminNavFrame.setLocationRelativeTo(null);
+		AdminNavFrame.setVisible(true);
+
+		
+	}
+	
+	private void AdminUserVerification() {
+		
+		
+		
+		AdminUserVerificationPanel = new JPanel();
+		AdminUserVerificationFrame = new JFrame();
+		AdminUserVerificationFrame.setSize(440,500);
+		AdminUserVerificationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //DISPOSE_ON_CLOSE stops exit button closing the entire program
+		AdminUserVerificationFrame.add(AdminUserVerificationPanel);
+		
+
+		
+        String[] UnitscolumnNames = {"ID", "UserName", "Fullname", "Email", "DateCreated"};
+        DefaultTableModel UserVerificationModel = new DefaultTableModel(Users, UnitscolumnNames);
+
+        
+        // Create scrollable table
+        UserVerificationTable = new JTable(UserVerificationModel);
+        
+        TableColumn UnitscolumnToHide0 = UserVerificationTable.getColumnModel().getColumn(0);
+
+
+        UnitscolumnToHide0.setPreferredWidth(0);
+        UnitscolumnToHide0.setMinWidth(0);
+        UnitscolumnToHide0.setMaxWidth(0);
+        UnitscolumnToHide0.setResizable(false);  // Prevent resizing
+
+
+        
+        JScrollPane UserVerificationScrollPane = new JScrollPane(UserVerificationTable);
+        
+        UserVerificationScrollPane.setPreferredSize(new Dimension(400, 300));
+        AdminUserVerificationPanel.add(UserVerificationScrollPane);
+
+
+		DeleteUserButton = new JButton("Delete User");
+		DeleteUserButton.setBounds(90, 450, 200,50);
+		DeleteUserButton.addActionListener(new GUI());
+		AdminUserVerificationPanel.add(DeleteUserButton);
+		
+		
+		
+		VerifyUserRowButton = new JButton("Verify User");
+		VerifyUserRowButton.setBounds(250, 450, 100,50);
+		VerifyUserRowButton.addActionListener(e -> {
+		    int selectedRow = UserVerificationTable.getSelectedRow();
+	        System.out.println(selectedRow);
+
+		    if (selectedRow != -1) {
+		        String userId = (String) UserVerificationTable.getValueAt(selectedRow, 0); // Assuming ID is in column 0
+
+		        
+		        // Confirmation pop-up
+		        int confirmation = JOptionPane.showConfirmDialog(
+		                AdminUserVerificationFrame,
+		                "Are you sure you want to verify the selected user?",
+		                "Confirm Verification",
+		                JOptionPane.YES_NO_OPTION
+		        );
+		        
+		        
+		        
+		        if (confirmation == JOptionPane.YES_OPTION) {
+
+		        	
+		        	try {
+						if(DBInstance.UserVerify(userId)) {
+					        System.out.println("user verified");
+					        UserVerificationModel.removeRow(selectedRow); //Removes newly verified user from table
+
+							
+							
+						}
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+
+
+		        }
+		        
+		        
+		    } else {
+		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please select a user to delete.");
+		    }
+		});;
+		AdminUserVerificationPanel.add(VerifyUserRowButton);
+		
+		
+		
+        AdminUserVerificationFrame.setLocationRelativeTo(null);
+        AdminUserVerificationFrame.setVisible(true);
 		
 	}
 
@@ -1176,17 +1333,25 @@ public class GUI extends ApplicationDriver implements ActionListener{
 					//System.out.println("Wrong Username or Password!");
 					SuccessLabel.setText("Wrong Username or Password!");
 				}else if(ApplicationDriver.UserResult[0].equals("Success")){
-					System.out.println("LogIn Success");
-					frame.dispose();
-					ApplicationDriver.LoggedIn = true;
-					LoggedIn = true;
-					
-					try {
-						SmartCityPage();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+						if(ApplicationDriver.UserResult[8].equals("0")) {
+							System.out.println(ApplicationDriver.UserResult[8]);
+							System.out.println("LogIn Success");
+							frame.dispose();
+							ApplicationDriver.LoggedIn = true;
+							LoggedIn = true;
+							
+							try {
+								SmartCityPage();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}else {
+							frame.dispose();
+							AdminNavigator();
+							ApplicationDriver.LoggedIn = true;
+							LoggedIn = true;
+						}
 
 				}
 				
@@ -1274,6 +1439,49 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			}
 		}else{
 
+			
+			if(ApplicationDriver.UserResult[8].equals("1")) {
+				
+				if(e.getActionCommand().equals("Navigate to Smart City App")) {
+					System.out.println("Navigation");
+					try {
+						SmartCityPage();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					
+				}else if(e.getActionCommand().equals("Navigate to User Verification")) {
+					System.out.println("User Verification");
+					try {
+						Users = DBInstance.Retrievetable("user");
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}  
+					AdminUserVerification();
+
+					
+				}else if(e.getActionCommand().equals("Navigate to Record Viewer")) {
+					System.out.println("Table Editors");
+					
+				}
+				
+				
+				
+				if(e.getActionCommand().equals("Verify User")) {
+					
+			        //selectedRow = UserVerificationTable.getSelectedRow();
+			        //userId = (int) UserVerificationTable.getValueAt(selectedRow, 0); // Assuming ID is in column 0
+			        
+			       // System.out.println(userId);
+					
+					
+					
+				}
+				
+			
+			}
+			
+			
 
 			if (e.getSource() instanceof JMenuItem) {//Is the e's source a JMenuItem
 	
@@ -1418,8 +1626,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			
 		}
 		
-		
-		
+
 		}
 	
 	private void Expand(ActionEvent e) {
