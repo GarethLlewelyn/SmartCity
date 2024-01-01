@@ -16,6 +16,7 @@ public class DatabaseDriver {
 	Connection conn;
 	String Query;
 	Statement statement;
+	ResultSet resultSet;
 	
 	
 	
@@ -69,9 +70,17 @@ public class DatabaseDriver {
 	
 	public String[][] Retrievetable(String Table) throws SQLException{
 		int i = 0;
-		Query = "SELECT * FROM `" + Table + "`";
-        statement = (Statement) conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        ResultSet resultSet = statement.executeQuery(Query);
+		if(Table.equals("user")) {
+			Query = "SELECT * FROM `" + Table + "` WHERE Verified=0";
+	        statement = (Statement) conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+	        resultSet = statement.executeQuery(Query);
+
+		}else { 
+			Query = "SELECT * FROM `" + Table + "`";
+	        statement = (Statement) conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+	        resultSet = statement.executeQuery(Query);
+		}
+
         
         int columnCount = resultSet.getMetaData().getColumnCount(); // Get number of columns
         int rowCount =0;
@@ -82,15 +91,43 @@ public class DatabaseDriver {
         
         resultSet.beforeFirst(); // Reset result set to beginning
         String[][] Result = new String[rowCount][columnCount]; 
-
-        while (resultSet.next()) {
+        
+        
+        if(Table.equals("user")) {
         	
-        	for(int K = 1; K <= columnCount; K++ ) {
-	        	Result[i][K-1] = resultSet.getString(K);
-        	}
         	
-        	i++;
+            while (resultSet.next()) {
+            	int AdjustedIndex = 0;
+            	for(int K = 1; K <= columnCount; K++ ) {
+            		if(K == 4) {
+            			continue;
+            			
+            		}
+        			Result[i][AdjustedIndex] = resultSet.getString(K);
+        			System.out.println(resultSet.getString(K));
+        			//System.out.println(K);
+        			AdjustedIndex++;
+            		
+            	}
+            	
+            	i++;
+            }
+        	
+        }else {
+        	
+            while (resultSet.next()) {
+            	
+            	for(int K = 1; K <= columnCount; K++ ) {
+    	        	Result[i][K-1] = resultSet.getString(K);
+            	}
+            	
+            	i++;
+            }
+        	
         }
+        
+        
+
 		
 		
 		return Result;
@@ -190,6 +227,25 @@ public class DatabaseDriver {
 		
 
 	}
+	
+	public boolean UserVerify(String ID) throws SQLException {
+		
+		PreparedStatement UserVerifyStmt = conn.prepareStatement("Update user SET Verified=? WHERE ID=?");
+		UserVerifyStmt.setString(2, ID);
+		UserVerifyStmt.setInt(1, 1);
+		
+		if(UserVerifyStmt.executeUpdate() == 1) {
+			System.out.println("Verification success");
+
+			return true;
+		}else {
+			return false;
+		}
+
+		
+		
+	}
+
 	
 }
 
