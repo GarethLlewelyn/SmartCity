@@ -247,5 +247,24 @@ public class DatabaseDriver {
 	}
 
 	
+	public boolean DeleteRecord(String ID, String Table) throws SQLException {
+		
+		
+		
+		
+		PreparedStatement TableDeleteStmt = conn.prepareStatement("DELETE FROM `" + Table + "` WHERE `ID`=?");
+		TableDeleteStmt.setString(1, ID);
+		
+		if(TableDeleteStmt.executeUpdate() == 1) {
+			System.out.println("Delete success");
+
+			return true;
+		}else {
+			return false;
+		}
+		
+		
+	}
+	
 }
 
