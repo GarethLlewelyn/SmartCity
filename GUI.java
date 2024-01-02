@@ -46,9 +46,13 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JButton RegisterBackButton;
 	private static JLabel RegisterSuccessLabel;
 
+	
+	/*
 	private static JMenuBar MenuBar = new JMenuBar();
 	private static JMenu Menu, Navigate, Profile; //Variables packed for efficient space usage
 	private static JMenuItem Quit, ChangeDetails, Tourist, Student, Job, Business, LogOut;
+	
+	*/
 	
 	private static JPanel TouristPanel = new JPanel(); //initialising Smart City page Variables
 	private static JPanel StudentPanel = new JPanel(); 
@@ -131,6 +135,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private JButton DeleteUserButton;
 	private int selectedRow;
 	private int userId;
+	
+	private static int CallOne;
 
 
 	
@@ -292,18 +298,10 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	}
 	
 	
-	
-	public static void SmartCityPage() throws IOException{
-
-		
-		
-		
-		StudentPanel.setVisible(false);
-		TouristPanel.setVisible(true);
-		
-		frame = new JFrame();
-		frame.setSize(900,670);	
-		frame.setBackground(Color.LIGHT_GRAY);
+	private static void createMenuItems() { //Navigation Menu Method
+		JMenuBar MenuBar = new JMenuBar();
+		JMenu Menu, Navigate, Profile; //Variables packed for efficient space usage
+		JMenuItem Quit, ChangeDetails, Tourist, Student, Job, Business, LogOut;
 		
 		Menu = new JMenu("Menu"); //Set Menu navigation items
 		Navigate = new JMenu("Navigate");
@@ -316,6 +314,56 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		Quit = new JMenuItem("Quit");
 		ChangeDetails = new JMenuItem("Change Details");
 		LogOut = new JMenuItem("Log Out");
+		
+		
+		
+		
+		
+		MenuBar.add(Menu);
+		MenuBar.add(Navigate);
+		MenuBar.add(Box.createHorizontalGlue()); //Ensures Profile menu item is at the right side
+		MenuBar.add(Profile);
+		Menu.add(Quit);
+		Navigate.add(Tourist);
+		Navigate.add(Student);
+		Navigate.add(Job);
+		Navigate.add(Business);
+		Profile.add(ChangeDetails);
+		Profile.add(LogOut);
+		
+		
+		Tourist.addActionListener(new GUI()); //Creates ActionListeners for buttons
+		Student.addActionListener(new GUI());
+		Job.addActionListener(new GUI());
+		Business.addActionListener(new GUI());
+		Quit.addActionListener(new GUI());
+		ChangeDetails.addActionListener(new GUI());
+		LogOut.addActionListener(new GUI());
+		
+		
+		
+		
+		
+		
+		
+		frame.setJMenuBar(MenuBar);
+		
+	}
+
+	public static void SmartCityPage() throws IOException{
+
+		
+		
+		
+		TouristPanel.setVisible(true);
+		
+		frame = new JFrame();
+		frame.setSize(900,670);	
+		frame.setBackground(Color.LIGHT_GRAY);
+
+		createMenuItems(); //Calls Navigation Menus through variable as to avoid duplicate JMenu Items with frame disposals
+		CallOne++;
+
 		
 			
 		//TOURIST PANEL
@@ -1057,31 +1105,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		
-		MenuBar.add(Menu);
-		MenuBar.add(Navigate);
-		MenuBar.add(Box.createHorizontalGlue()); //Ensures Profile menu item is at the right side
-		MenuBar.add(Profile);
-		Menu.add(Quit);
-		Navigate.add(Tourist);
-		Navigate.add(Student);
-		Navigate.add(Job);
-		Navigate.add(Business);
-		Profile.add(ChangeDetails);
-		Profile.add(LogOut);
-		
-		
-		
-		
-		
-		
-		
-		Tourist.addActionListener(new GUI()); //Creates ActionListeners for buttons
-		Student.addActionListener(new GUI());
-		Job.addActionListener(new GUI());
-		Business.addActionListener(new GUI());
-		Quit.addActionListener(new GUI());
-		ChangeDetails.addActionListener(new GUI());
-		LogOut.addActionListener(new GUI());
+
 
 
 		
@@ -1096,7 +1120,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 		frame.add(TouristPanel);
 
-		frame.setJMenuBar(MenuBar);
+		
 
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
@@ -1187,8 +1211,48 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 
 		DeleteUserButton = new JButton("Delete User");
-		DeleteUserButton.setBounds(90, 450, 200,50);
-		DeleteUserButton.addActionListener(new GUI());
+		DeleteUserButton.setBounds(90, 600, 200,50);
+		DeleteUserButton.addActionListener(e -> {
+		    int selectedRow = UserVerificationTable.getSelectedRow();
+	        System.out.println(selectedRow);
+
+		    if (selectedRow != -1) {
+		        String userId = (String) UserVerificationTable.getValueAt(selectedRow, 0); // Retrieve ID at column 0
+
+		        
+		        // Confirmation pop-up
+		        int confirmation = JOptionPane.showConfirmDialog(
+		                AdminUserVerificationFrame,
+		                "Are you sure you want to Delete the selected user?",
+		                "Confirm Deletion",
+		                JOptionPane.YES_NO_OPTION
+		        );
+		        
+		        
+		        
+		        if (confirmation == JOptionPane.YES_OPTION) {
+
+		        	
+		        	try {
+						if(DBInstance.DeleteRecord(userId, "user")) {
+					        System.out.println("user verified");
+					        UserVerificationModel.removeRow(selectedRow); //Removes newly Deleted user from table
+
+							
+							
+						}
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+
+
+		        }
+		        
+		        
+		    } else {
+		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please select a user to delete.");
+		    }
+		});
 		AdminUserVerificationPanel.add(DeleteUserButton);
 		
 		
@@ -1200,7 +1264,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	        System.out.println(selectedRow);
 
 		    if (selectedRow != -1) {
-		        String userId = (String) UserVerificationTable.getValueAt(selectedRow, 0); // Assuming ID is in column 0
+		        String userId = (String) UserVerificationTable.getValueAt(selectedRow, 0); // Retrieve ID at column 0
 
 		        
 		        // Confirmation pop-up
@@ -1235,7 +1299,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		    } else {
 		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please select a user to delete.");
 		    }
-		});;
+		});
 		AdminUserVerificationPanel.add(VerifyUserRowButton);
 		
 		
