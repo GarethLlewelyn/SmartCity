@@ -266,5 +266,230 @@ public class DatabaseDriver {
 		
 	}
 	
+	
+	public boolean UpdateRecord(String ID, String Table, String[] EditedData) throws SQLException {
+
+		String sql = null;
+		int IndexParam = 0;
+		System.out.println("The table is:" + Table);
+
+		switch(Table){
+			
+			case "hotels": 
+				
+				System.out.println("SWITCH WORK");
+				sql = "Update hotels SET Name=?, Address=?, Description=?, Email=?  WHERE ID=?";
+				IndexParam = 5;
+				break;
+				
+			case"resteraunt":
+				sql = "Update resteraunt SET Name=?, Address=?, Description=?, Email=?  WHERE ID=?";
+				System.out.println("SWITCH WORK");
+				IndexParam = 5;
+
+				break;
+				
+			case"news":
+
+				sql = "Update news SET Headline=?, Description=?, DateCreated=? WHERE ID=?";
+				System.out.println("SWITCH WORK");
+				IndexParam = 4;
+				break;
+				
+			case"accomidation":
+
+				sql = "Update accomidation SET Name=?, Address=?, Description=?, Email=?, AverageWeeklyCost=?  WHERE ID=?";
+				IndexParam = 6;
+				System.out.println("SWITCH WORK");
+
+				break;
+				
+			case"unicol":
+
+				sql = "Update unicol SET Name=?, Address=?, Description=?, Website=?  WHERE ID=?";
+				System.out.println("SWITCH WORK");
+				IndexParam = 5;
+				break;
+				
+			case"rentablespace":
+
+				sql = "Update rentablespace SET Company=?, Address=?, SizeSQF=?, CostPerMonth=?, Description=?, Contact=?  WHERE ID=?";
+				System.out.println("SWITCH WORK");
+				IndexParam = 7;
+				break;
+				
+			case"business":
+
+				sql = "Update business SET Company=?, Address=?, Description=?, Industry=?, Email=?  WHERE ID=?";
+				System.out.println("SWITCH WORK");
+				IndexParam = 6;
+				break;
+				
+				
+			case"jobposting":
+
+				sql = "Update jobposting SET JobTitle=?, Company=?, Salary=?, Description=?, Apprentihip=?, CompanyWebsite=?  WHERE ID=?";
+				System.out.println("SWITCH WORK");
+				IndexParam = 7;
+				break;
+				
+			case"volunteering":
+
+				sql = "Update volunteering SET JobTitle=?, Address=?, Company=?, Description=?, CompanyWebsite=?, Contact=?  WHERE ID=?";
+				System.out.println("SWITCH WORK");
+				IndexParam = 7;
+				break;
+				
+
+			
+		}
+		
+		
+		PreparedStatement TableUpdateStmt = conn.prepareStatement(sql);
+		System.out.println("#####################################");
+
+		System.out.println(EditedData.length);
+		System.out.println("#####################################");
+
+		
+		
+		for(int i = 0; i < IndexParam-1; i++) {
+			
+			if(EditedData[i] == null) {
+				EditedData[i] = "N/A";
+			}
+			TableUpdateStmt.setString(i+1, EditedData[i]);
+			System.out.println(i+1 +" //" + EditedData[i]);
+
+			
+		}
+		System.out.println(ID);
+		TableUpdateStmt.setString(IndexParam, ID); //Set ID
+
+		if(TableUpdateStmt.executeUpdate() == 1) {
+			System.out.println("Update success");
+
+			return true;
+		}else {
+			return false;
+		}
+	   
+		//PreparedStatement UserVerifyStmt = conn.prepareStatement("Update " + Table + " SET Verified=? WHERE ID=?");
+	}
+	
+	
+	
+	
+	
+	
+	
+	public boolean AddRecord(String Table, String[] EditedData) throws SQLException {
+
+		String sql = null;
+		int IndexParam = 0;
+		System.out.println("The table is:" + Table);
+
+		switch(Table){
+			
+			case "hotels": 
+				
+				System.out.println("SWITCH WORK");
+				sql = "INSERT INTO `hotels`(`Name`, `Address`, `Description`, `Email`) VALUES (?, ?, ?, ? )";
+				IndexParam = 4;
+				break;
+				
+			case"resteraunt":
+				sql = "INSERT INTO `resteraunt`(`Name`, `Address`, `Description`, `Email`) VALUES (?, ?, ?, ? )";
+				System.out.println("SWITCH WORK");
+				IndexParam = 4;
+
+				break;
+				
+			case"news":
+
+				sql = "INSERT INTO `news`(`Headline`, `Description`) VALUES (?, ? )";
+				System.out.println("SWITCH WORK");
+				IndexParam = 2;
+				break;
+				
+			case"accomidation":
+
+				sql = "INSERT INTO `accomidation`(`Name`, `Address`, `Description`, `Email`, `AverageWeeklyCost`) VALUES (?, ?, ?, ?, ? )";
+				IndexParam = 5;
+				System.out.println("SWITCH WORK");
+
+				break;
+				
+			case"unicol":
+
+				sql = "INSERT INTO `unicol`(`Name`, `Address`, `Description`, `Website`) VALUES (?, ?, ?, ? )";
+				System.out.println("SWITCH WORK");
+				IndexParam = 4;
+				break;
+				
+			case"rentablespace":
+
+				sql = "INSERT INTO `rentablespace`(`Company`, `Address`, `SizeSQF`, `CostPerMonth`, `Description`, `Contact`) VALUES (?, ?, ?, ?, ?, ? )";
+				System.out.println("SWITCH WORK");
+				IndexParam = 6;
+				break;
+				
+			case"business":
+
+				sql = "INSERT INTO `business`(`Company`, `Address`, `Description`, `Industry`, `Email`) VALUES (?, ?, ?, ?, ? )";
+				System.out.println("SWITCH WORK");
+				IndexParam = 5;
+				break;
+				
+				
+			case"jobposting":
+
+				sql = "INSERT INTO `jobposting`(`JobTitle`, `Company`, `Salary`, `Description`, `Apprentiship`, `CompanyWebsite`) VALUES (?, ?, ?, ?, ?, ? )";
+				System.out.println("SWITCH WORK");
+				IndexParam = 6;
+				break;
+				
+			case"volunteering":
+
+				sql = "INSERT INTO `volunteering`(`JobTitle`, `Address`, `Company`, `Description`, `CompanyWebsite`, `Contact`) VALUES (?, ?, ?, ?, ?, ? )";
+				System.out.println("SWITCH WORK");
+				IndexParam = 6;
+				break;
+				
+
+			
+		}
+		
+		
+		PreparedStatement TableUpdateStmt = conn.prepareStatement(sql);
+		System.out.println("#####################################");
+
+		System.out.println(EditedData.length);
+		System.out.println("#####################################");
+
+		
+		
+		for(int i = 0; i < IndexParam; i++) {
+			
+			if(EditedData[i] == null) {
+				EditedData[i] = "N/A";
+			}
+			TableUpdateStmt.setString(i+1, EditedData[i]);
+			System.out.println(i+1 +" //" + EditedData[i]);
+
+			
+		}
+
+		if(TableUpdateStmt.executeUpdate() == 1) {
+			System.out.println("Update success");
+
+			return true;
+		}else {
+			return false;
+		}
+	   
+	}
+		
+		
 }
 
