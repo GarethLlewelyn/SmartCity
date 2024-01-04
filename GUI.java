@@ -8,12 +8,15 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 
 
@@ -94,7 +97,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JTable Apprentishipstable;
 	private static JPanel VolunteeringPanel = new JPanel();
 	
-	private static JPanel OpportunitiesPanel = new JPanel();  //Business Sub-Panels
+	private static JPanel BuisnessPhotoPanel = new JPanel();  //Business Sub-Panels
 	private static JPanel UnitsPanel = new JPanel();
 	private static JLabel UnitsLabel;
 	private static JTable Unitstable;
@@ -135,10 +138,25 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private JButton DeleteUserButton;
 	private int selectedRow;
 	private int userId;
+	private String SelectedSQL = "hotel";
+
 	
 	private static int CallOne;
-
-
+    private JComboBox<String> categoryComboBox = new JComboBox<>();
+	private JTable AdminRecordViewerTable;
+	private JPanel AdminRecordViewerPanel;
+	private JFrame AdminRecordViewerFrame;
+	
+	private String[][] AdminTableData;
+	private String[] AdminColumnNames;
+	TableColumn AdminHiddenCollumn0;
+	private JButton DeleteRecordButton;
+	private JButton AddRecordButton;
+	private JTextField AdminRecordSearch;
+	private JButton AdminSearchRecordButton;
+	private JButton EditRecordButton;
+	int IntSkip;
+	private DefaultTableModel DefaultRecordModel;
 	
 	public static boolean Login() throws IOException {
 
@@ -1083,15 +1101,15 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         
 		
-        OpportunitiesPanel.setBounds(10,100,215,205);
-        OpportunitiesPanel.setBackground(Color.yellow);
+        BuisnessPhotoPanel.setBounds(10,10,215,590);
+        BuisnessPhotoPanel.setBackground(Color.yellow);
 		
 		
 		
 		
         BusinessPanel.add(NewBuinessPanel);
         BusinessPanel.add(UnitsPanel);
-        BusinessPanel.add(OpportunitiesPanel);
+        BusinessPanel.add(BuisnessPhotoPanel);
         BusinessPanel.add(BuinessNewsPanel);
 
         
@@ -1141,7 +1159,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		AdminNavPanel = new JPanel();
 		AdminNavFrame = new JFrame();
-		AdminNavFrame.setSize(300,400);
+		AdminNavFrame.setSize(300,180);
 		AdminNavFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		AdminNavFrame.add(AdminNavPanel);
 		
@@ -1306,6 +1324,272 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
         AdminUserVerificationFrame.setLocationRelativeTo(null);
         AdminUserVerificationFrame.setVisible(true);
+		
+	}
+	
+	
+	
+	
+	private void AdminRecordViewer() {
+		
+        categoryComboBox.addItem("Hotels");
+        categoryComboBox.addItem("Resteraunts");
+        categoryComboBox.addItem("News");
+        categoryComboBox.addItem("Accomidation");
+        categoryComboBox.addItem("UniCol");
+        categoryComboBox.addItem("JobPost");
+        categoryComboBox.addItem("Volunteering");
+        categoryComboBox.addItem("RentableSpaces");
+        categoryComboBox.addItem("NewBuisnesses");
+        AdminRecordViewerTable = new JTable();
+   
+        LoadNewTable("Hotels");
+        
+        AdminRecordViewerPanel = new JPanel();
+        AdminRecordViewerFrame = new JFrame();
+        JPanel AdminRecordViewerTablePanel = new JPanel();
+
+        AdminRecordViewerFrame.setSize(440,500);
+		AdminRecordViewerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //DISPOSE_ON_CLOSE stops exit button closing the entire program
+		
+
+		
+        DefaultRecordModel = new DefaultTableModel(AdminTableData, AdminColumnNames);
+
+        
+        // Create scrollable table
+        AdminRecordViewerTable = new JTable(DefaultRecordModel);
+        AdminRecordViewerTable.setAutoCreateColumnsFromModel(true); // Adapt to model changes
+
+        AdminHiddenCollumn0 = AdminRecordViewerTable.getColumnModel().getColumn(0);
+
+
+        AdminHiddenCollumn0.setPreferredWidth(0);
+        AdminHiddenCollumn0.setMinWidth(0);
+        AdminHiddenCollumn0.setMaxWidth(0);
+        AdminHiddenCollumn0.setResizable(false);  // Prevent resizing
+
+
+        
+        JScrollPane AdminRecordViewerScrollPane = new JScrollPane(AdminRecordViewerTable);
+        AdminRecordViewerScrollPane.setPreferredSize(new Dimension(400, 300));
+
+        AdminRecordViewerTablePanel.setBounds(15, 50, 400, 300);
+        AdminRecordSearch = new JTextField(20); // Create a text box with a width of 20 columns
+        AdminRecordSearch.setBounds(167, 0, 150, 50);
+        
+        
+        AdminSearchRecordButton = new JButton("Search");
+        AdminSearchRecordButton.setBounds(320, 0, 95,50);
+        AdminSearchRecordButton.addActionListener(e -> {
+
+
+        	for(int I = 0; I < AdminTableData.length; I++ ) {
+        		
+        		if(AdminTableData[I][0].equals(AdminRecordSearch.getText())) {
+        			
+    		        // Confirmation pop-up
+        			String[] Options = {"Delete", "Edit"};
+        			int answer = JOptionPane.showOptionDialog(
+        		               frame,
+        		               "Select following action for ID: " + AdminRecordSearch.getText(), 
+        		               "Select",            
+        		               JOptionPane.YES_NO_OPTION,
+        		               JOptionPane.QUESTION_MESSAGE,
+        		               null,     //no custom icon
+        		               Options,  //button titles
+        		               null
+        		            );
+
+    		        
+    		        
+    		        
+    		        if (answer == JOptionPane.YES_OPTION) {
+
+    		        	
+    		        	try {
+    		        		String SearchID = AdminRecordSearch.getText();
+    						if(DBInstance.DeleteRecord(SearchID, SelectedSQL)) {
+    					        System.out.println("Record Deleted");
+    					        DefaultRecordModel.removeRow(I); //Removes Record from table
+
+    							
+    							
+    						}
+    					} catch (SQLException e1) {
+    						e1.printStackTrace();
+    					}
+
+
+    		        }else if(answer == JOptionPane.NO_OPTION){
+    		            String[] rowData = new String[AdminTableData[I].length];
+
+    		            for (int i = 0; i < rowData.length; i++) {
+    		                rowData[i] = (String) AdminTableData[I][i];
+    		            }
+    		            
+    		            
+    		            try {
+							showEditRecordFrame(AdminColumnNames, rowData);
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+
+    		        }
+        			
+        			
+        			
+        			
+        			
+        			
+        		}
+        		
+        		if(I == AdminTableData.length) {
+    		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please Enter a valid ID");
+
+        		}
+        		
+        		
+        	}
+
+	        
+	        
+		    
+		    
+		        
+		        
+		    
+		});
+        
+        
+        categoryComboBox.setBounds(15, 0, 150, 50);
+        categoryComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	LoadNewTable((String) categoryComboBox.getSelectedItem());
+            }
+        });
+        
+        
+
+
+
+
+		DeleteRecordButton = new JButton("Delete Record");
+		DeleteRecordButton.setBounds(40, 360, 100,50);
+		DeleteRecordButton.addActionListener(e -> {
+		    int selectedRow = AdminRecordViewerTable.getSelectedRow();
+	        System.out.println(selectedRow);
+
+		    if (selectedRow != -1) {
+		        String userId = (String) AdminRecordViewerTable.getValueAt(selectedRow, 0); // Retrieve ID at column 0
+
+		        
+		        // Confirmation pop-up
+		        int confirmation = JOptionPane.showConfirmDialog(
+		        		AdminRecordViewerFrame,
+		                "Are you sure you want to delete the selected record?",
+		                "Confirm Deletion",
+		                JOptionPane.YES_NO_OPTION
+		        );
+		        
+		        
+		        
+		        if (confirmation == JOptionPane.YES_OPTION) {
+
+		        	
+		        	try {
+						if(DBInstance.DeleteRecord(userId, SelectedSQL)) {
+					        System.out.println("Record Deleted");
+					        DefaultRecordModel.removeRow(selectedRow); //Removes Record from table
+
+							
+							
+						}
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+
+
+		        }
+		        
+		        
+		    } else {
+		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please select a user to delete.");
+		    }
+		});
+		
+		
+		
+		
+		EditRecordButton = new JButton("Edit Record");
+		EditRecordButton.setBounds(150, 360, 100,50);
+		EditRecordButton.addActionListener(e -> {
+			
+			
+		    int selectedRow = AdminRecordViewerTable.getSelectedRow();
+	        //String userId = (String) AdminRecordViewerTable.getValueAt(selectedRow, 0); // Retrieve ID at column 0
+			
+            String[] rowData = new String[AdminTableData[selectedRow].length];
+
+            for (int i = 0; i < rowData.length; i++) {
+                rowData[i] = (String) AdminTableData[selectedRow][i];
+            }
+            
+            
+            try {
+				showEditRecordFrame(AdminColumnNames, rowData);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			
+			
+			
+			
+		});
+		
+		
+		
+		
+		AddRecordButton = new JButton("Add Record");
+		AddRecordButton.setBounds(260, 360, 100,50);
+		AddRecordButton.addActionListener(e -> {
+			
+			
+            try {
+				showAddRecordFrame(AdminColumnNames);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			
+		});
+		
+		
+		
+		
+		
+		
+		
+		
+		AdminRecordViewerPanel.add(AddRecordButton);
+
+		AdminRecordViewerPanel.add(EditRecordButton);
+
+		AdminRecordViewerPanel.add(AdminSearchRecordButton);
+		AdminRecordViewerPanel.add(AdminRecordSearch);
+		AdminRecordViewerPanel.add(DeleteRecordButton);
+        AdminRecordViewerPanel.add(categoryComboBox);
+        AdminRecordViewerTablePanel.add(AdminRecordViewerScrollPane);
+        AdminRecordViewerPanel.add(AdminRecordViewerTablePanel);
+		
+		
+        
+		AdminRecordViewerFrame.add(AdminRecordViewerPanel);
+
+        AdminRecordViewerPanel.setLayout(null);
+
+        AdminRecordViewerFrame.setLocationRelativeTo(null);
+        AdminRecordViewerFrame.setVisible(true);
 		
 	}
 
@@ -1526,6 +1810,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 					
 				}else if(e.getActionCommand().equals("Navigate to Record Viewer")) {
 					System.out.println("Table Editors");
+					AdminRecordViewer();
 					
 				}
 				
@@ -1693,6 +1978,153 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 		}
 	
+	
+	private void showAddRecordFrame(String[] columnNames) throws SQLException {
+		
+		//IntSkip = 10; //Integer to skip
+	    JTextField[] editTextFields = new JTextField[columnNames.length - 1];
+	    String[] editedData = new String[columnNames.length - 1];
+
+	    JFrame AddRecordFrame = new JFrame("Add Record to:" + SelectedSQL);
+	    AddRecordFrame.setSize(400, 300);
+	    AddRecordFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+	    JPanel contentPane = new JPanel();
+	    contentPane.setLayout(new GridLayout(0, 2, 5, 5));
+	    int Skip = 0;
+	    // Create labels and text fields for each textbox other than id
+	    for (int i = 1; i < columnNames.length; i++) {
+	    	
+	    	if(columnNames[i].equals("Date Created") || columnNames[i].equals("Date Published")) {
+	    		IntSkip = i-1;
+	    		System.out.println("Skip is: " + columnNames[i]);
+
+	    		System.out.println("Skip is: " + IntSkip);
+	    		Skip = 1;
+	    		continue;
+
+	    		
+	    	}else if(Skip == 0){
+	    		IntSkip = 10;
+	    	}
+	    		
+	        JLabel label = new JLabel(columnNames[i]);
+	        contentPane.add(label);
+	        JTextField textField = new JTextField(); 
+	        editTextFields[i - 1] = textField;
+	        contentPane.add(textField);
+	    }
+
+	    // Add Save and Cancel buttons
+	    JButton saveButton = new JButton("Save");
+	    saveButton.addActionListener(new ActionListener() {
+	        @Override    
+				public void actionPerformed(ActionEvent e) {
+				            // Package edited data into 1D array
+				            for (int i = 0; i < editedData.length; i++) {
+				            	if(i == IntSkip) {
+					                //System.out.println("SKIPPING /////" + editTextFields[i].getText());
+
+					                continue;
+				            	}
+				            	
+				                editedData[i] = editTextFields[i].getText();
+				                System.out.println("/////////////" + editTextFields[i].getText());
+				            }
+				            AddRecordFrame.setVisible(false); // Close the frame
+				            
+				            try {
+								if(DBInstance.AddRecord(SelectedSQL, editedData)) {
+									System.out.println("SQL SELECTED IS: " + SelectedSQL);
+									DefaultRecordModel.addRow(editedData);
+									DefaultRecordModel.fireTableDataChanged();
+
+								}
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
+					    	
+				        }
+				    });
+	    contentPane.add(saveButton);
+	    
+	    JButton cancelButton = new JButton("Cancel");
+	    cancelButton.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	        	AddRecordFrame.setVisible(false); // Close the frame
+	        }
+	    });
+	    contentPane.add(cancelButton);
+
+	    AddRecordFrame.setContentPane(contentPane);
+	    AddRecordFrame.setVisible(true);
+
+	}
+	
+	
+	private void showEditRecordFrame(String[] columnNames, String[] rowData) throws SQLException {
+	    JTextField[] editTextFields = new JTextField[columnNames.length - 1];
+	    String[] editedData = new String[columnNames.length - 1];
+
+	    JFrame editFrame = new JFrame("Edit Record");
+	    editFrame.setSize(400, 300);
+	    editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+	    JPanel contentPane = new JPanel();
+	    contentPane.setLayout(new GridLayout(0, 2, 5, 5));
+
+	    // Create labels and text fields for each textbox other than id
+	    for (int i = 1; i < columnNames.length; i++) {
+	        JLabel label = new JLabel(columnNames[i]);
+	        contentPane.add(label);
+	        JTextField textField = new JTextField(rowData[i]); // Fill with record data for editing
+	        editTextFields[i - 1] = textField;
+	        contentPane.add(textField);
+	    }
+
+	    // Add Save and Cancel buttons
+	    JButton saveButton = new JButton("Save");
+	    saveButton.addActionListener(new ActionListener() {
+	        @Override    
+				public void actionPerformed(ActionEvent e) {
+				            // Package edited data into 1D array
+				            for (int i = 0; i < editedData.length; i++) {
+				                editedData[i] = editTextFields[i].getText();
+				                System.out.println("/////////////" + editTextFields[i].getText());
+				            }
+				            editFrame.setVisible(false); // Close the frame
+				            
+				            try {
+								if(DBInstance.UpdateRecord(rowData[0], SelectedSQL, editedData)) {
+									System.out.println("SQL SELECTED IS: " + SelectedSQL);
+
+								}
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
+					    	
+				        }
+				    });
+	    contentPane.add(saveButton);
+	    
+	    JButton cancelButton = new JButton("Cancel");
+	    cancelButton.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            editFrame.setVisible(false); // Close the frame
+	        }
+	    });
+	    contentPane.add(cancelButton);
+
+	    editFrame.setContentPane(contentPane);
+	    editFrame.setVisible(true);
+
+	}
+	
+	
+	
+	
 	private void Expand(ActionEvent e) {
 		JMenuItem menuItem = (JMenuItem) e.getSource();
 	    JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
@@ -1754,5 +2186,204 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			
 		}
 
+	
+	
+	private void LoadNewTable(String TableQuery) {
+		
+		switch (TableQuery){
+		
+		
+
+			case"Hotels":
+				System.out.println("Hotels");
+				AdminColumnNames = new String[5];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Name";
+				AdminColumnNames[2] = "Address";
+				AdminColumnNames[3] = "Description";
+				AdminColumnNames[4] = "Email";
+				
+				AdminTableData = new String[ApplicationDriver.Hotels.length][AdminColumnNames.length];
+				AdminTableData = ApplicationDriver.Hotels;
+				SelectedSQL = "hotels";
+
+				break;
+				
+			case"Resteraunts":
+				System.out.println("Resteraunts");
+				AdminColumnNames = new String[5];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Name";
+				AdminColumnNames[2] = "Address";
+				AdminColumnNames[3] = "Description";
+				AdminColumnNames[4] = "Email";
+
+				
+				AdminTableData = ApplicationDriver.Resteraunts;
+				SelectedSQL = "resteraunt";
+
+				break;
+				
+			case"News":
+				System.out.println("News");
+				
+				AdminColumnNames = new String[4];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Headline";
+				AdminColumnNames[2] = "Description";
+				AdminColumnNames[3] = "Date Created";
+				
+				AdminTableData = ApplicationDriver.News;
+				SelectedSQL = "news";
+
+				break;
+				
+			case"Accomidation":
+				System.out.println("Accomidation");
+				
+				AdminColumnNames = new String[6];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Name";
+				AdminColumnNames[2] = "Address";
+				AdminColumnNames[3] = "Description";
+				AdminColumnNames[4] = "Email";
+				AdminColumnNames[5] = "Weekly Cost";
+
+				AdminTableData = ApplicationDriver.Accomidation;
+				SelectedSQL = "accomidation";
+
+				break;
+				
+			case"UniCol":
+				System.out.println("UniCol");
+				
+				AdminColumnNames = new String[5];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Name";
+				AdminColumnNames[2] = "Address";
+				AdminColumnNames[3] = "Description";
+				AdminColumnNames[4] = "Website";
+
+				AdminTableData = ApplicationDriver.UniCol;
+				SelectedSQL = "unicol";
+
+				break;
+				
+			case"RentableSpaces":
+				System.out.println("RentableSpaces");
+				
+				AdminColumnNames = new String[8];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Company";
+				AdminColumnNames[2] = "Address";
+				AdminColumnNames[3] = "SizeSQF";
+				AdminColumnNames[4] = "Cost per month";
+				AdminColumnNames[5] = "Description";
+				AdminColumnNames[6] = "Contact";
+				AdminColumnNames[7] = "Date Published";
+
+				AdminTableData = ApplicationDriver.RentableSpaces;
+				SelectedSQL = "rentablespace";
+
+				break;
+				
+			case"NewBuisnesses":
+				System.out.println("NewBuisnesses");
+				AdminColumnNames = new String[7];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Company";
+				AdminColumnNames[2] = "Address";
+				AdminColumnNames[3] = "Description";
+				AdminColumnNames[4] = "Industry";
+				AdminColumnNames[6] = "Email";
+				AdminColumnNames[5] = "Date Published";
+
+				AdminTableData = ApplicationDriver.NewBuisnesses;
+				SelectedSQL = "business";
+
+				break;
+				
+				
+			case"JobPost":
+				System.out.println("JobPost");
+				
+				AdminColumnNames = new String[7];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Job Title";
+				AdminColumnNames[2] = "Company";
+				AdminColumnNames[3] = "Salary";
+				AdminColumnNames[4] = "Description";
+				AdminColumnNames[5] = "Apprentiship";
+				AdminColumnNames[6] = "Website";
+				AdminTableData = ApplicationDriver.JobPost;
+				SelectedSQL = "jobposting";
+
+				break;
+				
+			case"Volunteering":
+				System.out.println("Volunteering");
+				
+				AdminColumnNames = new String[7];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Job Title";
+				AdminColumnNames[2] = "Address";
+				AdminColumnNames[3] = "Company";
+				AdminColumnNames[4] = "Description";
+				AdminColumnNames[5] = "Website";
+				AdminColumnNames[6] = "Contact";
+				AdminTableData = ApplicationDriver.Volunteering;
+				SelectedSQL = "volunteering";
+
+				break;
+				
+			case"BusinessNews":
+				System.out.println("BusinessNews");
+				
+				AdminColumnNames = new String[4];  // Create the array with size 3
+				
+				AdminColumnNames[0] = "ID";
+				AdminColumnNames[1] = "Name";
+				AdminColumnNames[2] = "2";
+				AdminColumnNames[3] = "3";
+				AdminTableData = new String[ApplicationDriver.BusinessNews.length][AdminColumnNames.length];
+				AdminTableData = ApplicationDriver.BusinessNews;
+				SelectedSQL = "news";
+
+				
+				
+				//MUST REMOVE THIS CASE AS IT IS NO DIFFRENT TO NEWS
+				break;
+
+			
+		}
+
+		DefaultTableModel tableModel = (DefaultTableModel) AdminRecordViewerTable.getModel();
+
+		
+
+		
+        
+		tableModel.setDataVector(AdminTableData, AdminColumnNames);
+		tableModel.fireTableDataChanged();
+		
+		TableColumnModel columnModel = AdminRecordViewerTable.getColumnModel();
+		AdminHiddenCollumn0 = columnModel.getColumn(0);
+        AdminHiddenCollumn0.setPreferredWidth(0);
+        AdminHiddenCollumn0.setMinWidth(0);
+        AdminHiddenCollumn0.setMaxWidth(0);
+        AdminHiddenCollumn0.setResizable(false);  // Prevent resizing
+
+
+		
+		}
 	}
 
