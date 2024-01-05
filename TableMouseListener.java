@@ -1,30 +1,21 @@
 package smartCity;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTable;
-/**
- * A mouse listener for a JTable component.
- * @author www.codejava.neet
- *
- */
+
 public class TableMouseListener extends MouseAdapter {
 	
-	private JTable table;
+	private JTable SelectedTable;
 
-	public TableMouseListener(JTable table) {
+	public TableMouseListener(JTable table) { //Constructor
 		
-		this.table = table;
+		this.SelectedTable = table;
 	}
 	
-	
-	
-	
-		public void mousePressed(MouseEvent event)
-		 
-		{
-		    Point point = event.getPoint();
-		    int currentRow = table.rowAtPoint(point);
-		    table.setRowSelectionInterval(currentRow, currentRow);
-		}; // Semicolon added here
+	public void mousePressed(MouseEvent event)//Method retrieves variable on right click
+	 
+	{
+	    int currentRow = SelectedTable.rowAtPoint(event.getPoint());//Select table row at mouse click
+	    SelectedTable.setRowSelectionInterval(currentRow, currentRow); //Set current row to SelectedTable 
+	}
 }

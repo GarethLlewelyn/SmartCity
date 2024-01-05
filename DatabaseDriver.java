@@ -7,7 +7,7 @@ import java.util.*;
 
 public class DatabaseDriver {
 	
-	String userName; 
+	String userName; //Local variables, not accessed by external classes
 	String password; 
 	String serverName; 
 	String url;
@@ -18,14 +18,15 @@ public class DatabaseDriver {
 	Statement statement;
 	ResultSet resultSet;
 	
+	private PreparedStatement Registerstmt;
+
 	
 	
 	
 	
 	
 	
-	
-	public DatabaseDriver(String userName, String password, Object Host, String serverName, int portNumber){
+	public DatabaseDriver(String userName, String password, Object Host, String serverName, int portNumber){//Constructor
 		
 		//Constructor initialises variables
 		this.userName = userName;
@@ -33,7 +34,7 @@ public class DatabaseDriver {
 		this.Host = Host;
 		this.serverName = serverName;
 		this.portNumber = portNumber;
-		this.url = "jdbc:mysql://" + this.Host + ":" + this.portNumber + "/" + this.serverName;
+		this.url = "jdbc:mysql://" + this.Host + ":" + this.portNumber + "/" + this.serverName; //Sets variable for connection with the SQL server. Combines multiple variables for access
 		DBConnect();
 		
 		System.out.print("DB Constructor Complete");
@@ -46,18 +47,18 @@ public class DatabaseDriver {
 			try {
 				
 			      Properties info = new Properties();
-			      info.put("user", this.userName);
+			      info.put("user", this.userName); //Inserts the database username and password for acces to the database
 			      info.put("password", this.password);
 			      conn = DriverManager.getConnection(url, info);
 
-			      if (conn != null) {
+			      if (conn != null) { //if connection is not equals to null, then program is connected to the database
 			        System.out.println("Connected to Database");
 			      }
 
 			    
 				
 			}
-			catch (SQLException ex) {
+			catch (SQLException ex) { //if error is caught then connection with database failed
 			      System.out.println("Error while connecting the Database");
 			      ex.printStackTrace();
 			    }
@@ -70,13 +71,18 @@ public class DatabaseDriver {
 	
 	public String[][] Retrievetable(String Table) throws SQLException{
 		int i = 0;
-		if(Table.equals("user")) {
+		if(Table.equals("user")) { //Set query to search for unverified users
 			Query = "SELECT * FROM `" + Table + "` WHERE Verified=0";
 	        statement = (Statement) conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 	        resultSet = statement.executeQuery(Query);
 
-		}else { 
-			Query = "SELECT * FROM `" + Table + "`";
+		}else if(Table.equals("Apprentiship")){ //sets query to search for apprentiships within the jobposting table
+			Query = "SELECT * FROM `jobposting` WHERE Apprentiship=1 ORDER BY ID DESC";
+	        statement = (Statement) conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+	        resultSet = statement.executeQuery(Query);
+			
+		} else { //sets query to search for given table
+			Query = "SELECT * FROM `" + Table + "` ORDER BY ID DESC";
 	        statement = (Statement) conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 	        resultSet = statement.executeQuery(Query);
 		}
@@ -90,20 +96,20 @@ public class DatabaseDriver {
         }
         
         resultSet.beforeFirst(); // Reset result set to beginning
-        String[][] Result = new String[rowCount][columnCount]; 
+        String[][] Result = new String[rowCount][columnCount]; //set array size
         
         
         if(Table.equals("user")) {
         	
         	
-            while (resultSet.next()) {
+            while (resultSet.next()) {//Itterates to next row of results
             	int AdjustedIndex = 0;
             	for(int K = 1; K <= columnCount; K++ ) {
-            		if(K == 4) {
+            		if(K == 4) { //4th Iteration is password therefore this is skipped to ensure security
             			continue;
             			
             		}
-        			Result[i][AdjustedIndex] = resultSet.getString(K);
+        			Result[i][AdjustedIndex] = resultSet.getString(K); //Sets 2nd dimension of array to Itterated value
         			System.out.println(resultSet.getString(K));
         			//System.out.println(K);
         			AdjustedIndex++;
@@ -113,7 +119,7 @@ public class DatabaseDriver {
             	i++;
             }
         	
-        }else {
+        }else { //If result is not for Users then algorithm does not exclude any itteration
         	
             while (resultSet.next()) {
             	
@@ -135,8 +141,8 @@ public class DatabaseDriver {
 		
 	}
 	
-	public String[] LoginVerification(String Username, String Password) throws SQLException{
-	    String Query = "SELECT * FROM user WHERE UserName='" + Username + "' && Password='" + Password+ "'";
+	public String[] LoginVerification(String Username, String Password) throws SQLException{ //Used to verify a login, then returns boolean based on result
+	    String Query = "SELECT * FROM user WHERE UserName='" + Username + "' && Password='" + Password+ "'"; //Set query to search for user and password, return result if both match an existing user
         statement = (Statement) conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ResultSet resultSet = statement.executeQuery(Query);
         int columnCount = resultSet.getMetaData().getColumnCount(); // Get number of columns
@@ -145,7 +151,7 @@ public class DatabaseDriver {
 
         if(resultSet.next()) {
         	
-        	if(resultSet.getString(7).equals("0")){
+        	if(resultSet.getString(7).equals("0")){ //If 7th iteration of resultSet is 0 then return User Unverified string. USer will not be able to login
         		Result[0] = "User Unverified";
         	}else {
         		
@@ -161,7 +167,7 @@ public class DatabaseDriver {
         	
         	}        	
         }else {
-        	Result[0] = "Wrong Username or Password";
+        	Result[0] = "Wrong Username or Password"; //If no match was found from query then return Wrong Username or Password
         }
 		return Result;
 	
@@ -170,32 +176,36 @@ public class DatabaseDriver {
 	
 	
 	
-	public String UserRegister(String[] RegisterDetails) throws SQLException{
+	public String UserRegister(String[] RegisterDetails) throws SQLException{ //Registers user 
 		
 		
-		
-		try(PreparedStatement CheckUserStmt = conn.prepareStatement("Select UserName FROM user WHERE UserName = ? ")){
+		try(PreparedStatement CheckUserStmt = conn.prepareStatement("Select UserName FROM user WHERE UserName = ? ")){ //Checks if username already exists
 
 			CheckUserStmt.setString(1, RegisterDetails[0]);
 			ResultSet QueryResult = CheckUserStmt.executeQuery();
-			if(QueryResult.next()) {
-				return "UserName Already Exists";
+			if(QueryResult.next()) { //If query returns result, return UserName Already Exists
+				return "UserName Already Exists"; 
 				
-			}else {
-				
-				PreparedStatement stmt = conn.prepareStatement("insert into user (UserName, FullName, Password, Email) values (?, ?, ?, ?)");
-				stmt.setString(1, RegisterDetails[0]);
-				stmt.setString(2, RegisterDetails[1]);
-				stmt.setString(3, RegisterDetails[2]);
-				stmt.setString(4, RegisterDetails[3]);
-				return "Register Succesfull";
+			}else { //If user does not exist, attempt register
+				Registerstmt = conn.prepareStatement("insert into user (UserName, FullName, Password, Email) values (?, ?, ?, ?)");
+				Registerstmt.setString(1, RegisterDetails[0]); //Enter RegisterDetails array into Registerstmt
+				Registerstmt.setString(2, RegisterDetails[1]);
+				Registerstmt.setString(3, RegisterDetails[2]);
+				Registerstmt.setString(4, RegisterDetails[3]);
+				if(Registerstmt.executeUpdate() == 1) {//execute prepared statement
+					return "Register Succesfull"; //If successful, return following
 
+				}else {
+					 return "Register Unsuccesfull"; //If unsuccessful, return following
+				}
 			}
 		
+			
+			
 
 		}catch (SQLException e) {
 	        e.printStackTrace();
-	        return "Please Try Again"; 
+	        return "Please Try Again"; //If error is caught, return following
 	    }
 
 	
@@ -206,17 +216,17 @@ public class DatabaseDriver {
 
 	}
 	
-	public boolean UserUpdate(int ID, String Name, String Email) throws SQLException {
+	public boolean UserUpdate(int ID, String Name, String Email) throws SQLException { //Update user details method for Users
 		
 		System.out.println(ID + " " + Name + " " + Email);
 
 		PreparedStatement UserUpdateStmt = conn.prepareStatement("Update user SET FullName=?, Email=? WHERE ID=?");
-		UserUpdateStmt.setInt(3, ID);
-		UserUpdateStmt.setString(1, Name);
+		UserUpdateStmt.setInt(3, ID); //Set ID of what user to edit
+		UserUpdateStmt.setString(1, Name); //Set changed details
 		UserUpdateStmt.setString(2, Email);
 
 		
-		if(UserUpdateStmt.executeUpdate() == 1) {
+		if(UserUpdateStmt.executeUpdate() == 1) { //If successful, run following
 			System.out.println("Success");
 
 			return true;
@@ -228,13 +238,13 @@ public class DatabaseDriver {
 
 	}
 	
-	public boolean UserVerify(String ID) throws SQLException {
+	public boolean UserVerify(String ID) throws SQLException { //Verify user method for Admins
 		
 		PreparedStatement UserVerifyStmt = conn.prepareStatement("Update user SET Verified=? WHERE ID=?");
-		UserVerifyStmt.setString(2, ID);
-		UserVerifyStmt.setInt(1, 1);
+		UserVerifyStmt.setString(2, ID); //Set ID of what user to Verify
+		UserVerifyStmt.setInt(1, 1); //Set verification status
 		
-		if(UserVerifyStmt.executeUpdate() == 1) {
+		if(UserVerifyStmt.executeUpdate() == 1) { //If successful, run following
 			System.out.println("Verification success");
 
 			return true;
@@ -247,15 +257,15 @@ public class DatabaseDriver {
 	}
 
 	
-	public boolean DeleteRecord(String ID, String Table) throws SQLException {
+	public boolean DeleteRecord(String ID, String Table) throws SQLException { //Delete record method for admins
 		
 		
 		
 		
 		PreparedStatement TableDeleteStmt = conn.prepareStatement("DELETE FROM `" + Table + "` WHERE `ID`=?");
-		TableDeleteStmt.setString(1, ID);
+		TableDeleteStmt.setString(1, ID); //Set ID of what user to delete
 		
-		if(TableDeleteStmt.executeUpdate() == 1) {
+		if(TableDeleteStmt.executeUpdate() == 1) { //If deletion is successful, run following
 			System.out.println("Delete success");
 
 			return true;
@@ -267,13 +277,13 @@ public class DatabaseDriver {
 	}
 	
 	
-	public boolean UpdateRecord(String ID, String Table, String[] EditedData) throws SQLException {
+	public boolean UpdateRecord(String ID, String Table, String[] EditedData) throws SQLException { //Update record method for admins. Edits records in tables for users to view
 
 		String sql = null;
 		int IndexParam = 0;
 		System.out.println("The table is:" + Table);
 
-		switch(Table){
+		switch(Table){ //Switch function for efficient coding practice. Each table will be checked and a sql statement along with index parameter will be set according to each tables columns
 			
 			case "hotels": 
 				
@@ -344,27 +354,20 @@ public class DatabaseDriver {
 			
 		}
 		
-		
-		PreparedStatement TableUpdateStmt = conn.prepareStatement(sql);
-		System.out.println("#####################################");
+		PreparedStatement TableUpdateStmt = conn.prepareStatement(sql); //Prepare prepared statement with the sql string set from switch case
 
-		System.out.println(EditedData.length);
-		System.out.println("#####################################");
-
-		
-		
-		for(int i = 0; i < IndexParam-1; i++) {
+		for(int i = 0; i < IndexParam-1; i++) { //For loop iterates through indexParam(this dictated how many columns must be set for each table). 
 			
 			if(EditedData[i] == null) {
 				EditedData[i] = "N/A";
 			}
-			TableUpdateStmt.setString(i+1, EditedData[i]);
+			TableUpdateStmt.setString(i+1, EditedData[i]); //i+1 required as Prepared statement requires index to start from 1, not 0
 			System.out.println(i+1 +" //" + EditedData[i]);
 
 			
 		}
-		System.out.println(ID);
-		TableUpdateStmt.setString(IndexParam, ID); //Set ID
+
+		TableUpdateStmt.setString(IndexParam, ID); //Set ID of record to edit. Index parameter will always dictate the WHERE function in sql
 
 		if(TableUpdateStmt.executeUpdate() == 1) {
 			System.out.println("Update success");
@@ -374,7 +377,6 @@ public class DatabaseDriver {
 			return false;
 		}
 	   
-		//PreparedStatement UserVerifyStmt = conn.prepareStatement("Update " + Table + " SET Verified=? WHERE ID=?");
 	}
 	
 	
@@ -383,13 +385,12 @@ public class DatabaseDriver {
 	
 	
 	
-	public boolean AddRecord(String Table, String[] EditedData) throws SQLException {
+	public boolean AddRecord(String Table, String[] EditedData) throws SQLException { //AddRecord method adds a record to a table, similar function to updateRecord method
 
-		String sql = null;
-		int IndexParam = 0;
-		System.out.println("The table is:" + Table);
+		String sql = null;//Initialise local variables
+		int IndexParam = 0; 
 
-		switch(Table){
+		switch(Table){//Switch function for efficient coding practice. Each table will be checked and a sql statement along with index parameter will be set according to each tables columns
 			
 			case "hotels": 
 				
@@ -461,26 +462,22 @@ public class DatabaseDriver {
 		}
 		
 		
-		PreparedStatement TableUpdateStmt = conn.prepareStatement(sql);
-		System.out.println("#####################################");
+		PreparedStatement TableUpdateStmt = conn.prepareStatement(sql);//Prepare prepared statement with the sql string set from switch case
 
-		System.out.println(EditedData.length);
-		System.out.println("#####################################");
 
-		
-		
-		for(int i = 0; i < IndexParam; i++) {
+		for(int i = 0; i < IndexParam; i++) {//For loop iterates through indexParam(this dictated how many columns must be set for each table). 
 			
 			if(EditedData[i] == null) {
 				EditedData[i] = "N/A";
 			}
-			TableUpdateStmt.setString(i+1, EditedData[i]);
+			TableUpdateStmt.setString(i+1, EditedData[i]);//i+1 required as Prepared statement requires index to start from 1, not 0
 			System.out.println(i+1 +" //" + EditedData[i]);
 
 			
 		}
+		//No ID is set as this will be automatic through MySQL
 
-		if(TableUpdateStmt.executeUpdate() == 1) {
+		if(TableUpdateStmt.executeUpdate() == 1) {  //If successful, run following
 			System.out.println("Update success");
 
 			return true;
