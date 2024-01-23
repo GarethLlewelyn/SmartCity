@@ -6,23 +6,34 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-
+import java.awt.Desktop;
+import java.net.URI;
 
 
 public class GUI extends ApplicationDriver implements ActionListener{
 
-	private static JLabel UserNamelabel; //initialising needed variables
+    private static JPopupMenu popupMenu;//Essential variables for program framework
+    private static JMenuItem Expand; //JMenuItems for all Tables
+    private static JMenuItem CopyRowLink;
+    private int clicks = 0; //confirm changes variable / Used for verification
+	private String SelectedSQL = "hotel"; //Sets what table is currently loaded in certain tables. Used in Admin panel 
+
+	
+	private static JLabel UserNamelabel; //initialising Login page variables
 	private static JTextField UserNameText;
 	private static JLabel Passwordlabel;
 	private static JPasswordField PasswordText;
@@ -35,7 +46,6 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JLabel RegisterPageUserNamelabel; //initialising Register page Variables
 	private static JLabel RegisterPageLabel; 
 	private static JTextField RegisterPageUserNameText;
-	
 	private static JLabel RegisterPageFullNameLabel; 
 	private static JTextField RegisterPageFullNameText;
 	
@@ -48,44 +58,28 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JButton RegisterPageButton;
 	private static JButton RegisterBackButton;
 	private static JLabel RegisterSuccessLabel;
-
-	
-	/*
-	private static JMenuBar MenuBar = new JMenuBar();
-	private static JMenu Menu, Navigate, Profile; //Variables packed for efficient space usage
-	private static JMenuItem Quit, ChangeDetails, Tourist, Student, Job, Business, LogOut;
-	
-	*/
 	
 	private static JPanel TouristPanel = new JPanel(); //initialising Smart City page Variables
 	private static JPanel StudentPanel = new JPanel(); 
 	private static JPanel JobPanel = new JPanel(); 
 	private static JPanel BusinessPanel = new JPanel(); 
-
-
-    private static JMenuItem Expand; //JMenuItems for all Tables
-    private static JMenuItem CopyRowLink;
 	
 	private static JPanel HotelPanel = new JPanel();  //Tourist Sub-Panels
 	private static JPanel ResterauntPanel = new JPanel();
 	private static JPanel WhatsonPanel = new JPanel();
 	private static JLabel WhatsonLabel; 
-	private static JPanel MapPanel = new JPanel();
+	private static JButton MapButton = new JButton("Expand Map");
 	private static JLabel HotelLabel; 
 	private static JLabel ResterauntLabel;
     private static JTable Hoteltable;
-
-	
 	
 	private static JPanel AccomidationPanel = new JPanel();  //Student Sub-Panels
 	private static JPanel ColUniPanel = new JPanel();
 	private static JLabel ColUniLabel;
-	private static JPanel FinanceInfoPanel = new JPanel();
-	private static JPanel LocationsPanel = new JPanel();
+	private static JPanel StudentImagePanel = new JPanel();
 	private static JLabel AccomidationLabel; 
 	private static JTable Accomidationtable;
 	private static JTable ColUnitable;
-	
 	
 	private static JPanel JobPostingPanel = new JPanel();  //Job Sub-Panels
 	private static JPanel ApprentishipsPanel = new JPanel();
@@ -95,22 +89,18 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JLabel JobPostingLabel; 
 	private static JTable JobPostingtable;
 	private static JTable Apprentishipstable;
-	private static JPanel VolunteeringPanel = new JPanel();
+	private static JPanel JobPostingImage = new JPanel();
 	
-	private static JPanel BuisnessPhotoPanel = new JPanel();  //Business Sub-Panels
+	private static JPanel BuisnessPhotoPanel;  //Business Sub-Panels
 	private static JPanel UnitsPanel = new JPanel();
 	private static JLabel UnitsLabel;
 	private static JTable Unitstable;
 	private static JPanel NewBuinessPanel = new JPanel();
 	private static JLabel NewBuinessLabel; 
 	private static JTable NewBuinesstable;
-	private static JPanel BuinessNewsPanel = new JPanel();
-	private static JLabel BuinessNewsLabel; 
-	private static JTable BuinessNewstable;
-	
-    private static JPopupMenu popupMenu;
-    
-    
+	private static JPanel BusinessNewsPanel = new JPanel();
+	private static JLabel BusinessNewsLabel; 
+	private static JTable BusinessNewstable;
     
 	private static JPanel ChangeDetailspanel;//Change Details variables
 	private static JFrame ChangeDetailframe;
@@ -120,8 +110,6 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private static JTextField ChangeDetailsEmailText;
 	private static JButton ChangeDetailsPageButton;
 	private static JLabel ChangeDetailsSuccessLabel = new JLabel();
-    private int clicks = 0; //confirm changes variable
-    
     
     
 	private JFrame AdminNavFrame; //Admin Navigation Panel
@@ -136,17 +124,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	private String[][] Users;
 	private JButton VerifyUserRowButton;
 	private JButton DeleteUserButton;
-	private int selectedRow;
-	private int userId;
-	private String SelectedSQL = "hotel";
 
 	
-	private static int CallOne;
-    private JComboBox<String> categoryComboBox = new JComboBox<>();
+    private JComboBox<String> categoryComboBox = new JComboBox<>(); //Admin record viewer panel variables
 	private JTable AdminRecordViewerTable;
 	private JPanel AdminRecordViewerPanel;
 	private JFrame AdminRecordViewerFrame;
-	
 	private String[][] AdminTableData;
 	private String[] AdminColumnNames;
 	TableColumn AdminHiddenCollumn0;
@@ -162,7 +145,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 		boolean logged = false;
 		
-		if(!logged) {
+		if(!logged) { //Only loads following if user is not logged in
 			panel = new JPanel();
 			frame = new JFrame();
 			
@@ -170,13 +153,13 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.add(panel);
 			
-			panel.setLayout(null);
+			panel.setLayout(null);//Set Null Layout to for .setBounds to function
 			
-			UserNamelabel = new JLabel("UserName");
+			UserNamelabel = new JLabel("UserName"); //Set labels 
 			UserNamelabel.setBounds(167, 20, 80, 25);
 			panel.add(UserNamelabel);
 			
-			UserNameText = new JTextField(20);
+			UserNameText = new JTextField(20); //Set textboxes for user input
 			UserNameText.setBounds(110, 40, 170, 25);
 			panel.add(UserNameText);
 			
@@ -187,7 +170,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			
 			PasswordText = new JPasswordField();
 			PasswordText.setBounds(110, 90, 170, 25);
-			PasswordText.setEchoChar('*');
+			PasswordText.setEchoChar('*'); //Password text is masked with * for protection
 			panel.add(PasswordText);
 			
 			LoginButton = new JButton("login");
@@ -215,12 +198,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		
-		return logged;
+		return logged; //Return result after sign in attempt
 	}
 	
 	
 	
-	public static void Register() throws IOException{
+	public static void Register() throws IOException{ //Register Method, allows users to create new accounts
 		
 		
 		panel = new JPanel();
@@ -228,8 +211,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		frame.setSize(400,400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(panel);
-		
-		panel.setLayout(null);
+		panel.setLayout(null);//Set Null Layout to for .setBounds to function
 		
 		RegisterPageLabel = new JLabel("Register your account");
 		RegisterPageLabel.setBounds(130, 20, 170, 25);
@@ -272,9 +254,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		RegisterPageRePasswordText.setBounds(110, 220, 170, 25);
 		RegisterPageRePasswordText.setEchoChar('*');
 		panel.add(RegisterPageRePasswordText);
-		
-		
-		
+
 		RegisterPageEmaillabel = new JLabel("Email");
 		RegisterPageEmaillabel.setBounds(177, 245, 80, 25);
 		panel.add(RegisterPageEmaillabel);
@@ -293,30 +273,17 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		RegisterPageButton.addActionListener(new GUI());
 		panel.add(RegisterPageButton);
 		
-		RegisterSuccessLabel = new JLabel("");
+		RegisterSuccessLabel = new JLabel(""); //Success label lets the user know if there were any errors in the register function
 		RegisterSuccessLabel.setBounds(110, 330, 300, 25);
 		panel.add(RegisterSuccessLabel);
 		
-		
-		
-		
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 	}
 	
 	
-	private static void createMenuItems() { //Navigation Menu Method
+	private static void createMenuItems() { //Navigation Menu Method / Is stored in a seperate method to SmartCityApp method as to avoid duplication of menu items
 		JMenuBar MenuBar = new JMenuBar();
 		JMenu Menu, Navigate, Profile; //Variables packed for efficient space usage
 		JMenuItem Quit, ChangeDetails, Tourist, Student, Job, Business, LogOut;
@@ -337,7 +304,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		
-		MenuBar.add(Menu);
+		MenuBar.add(Menu); //Add menu navigation to MenuBar
 		MenuBar.add(Navigate);
 		MenuBar.add(Box.createHorizontalGlue()); //Ensures Profile menu item is at the right side
 		MenuBar.add(Profile);
@@ -358,63 +325,56 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		ChangeDetails.addActionListener(new GUI());
 		LogOut.addActionListener(new GUI());
 		
-		
-		
-		
-		
-		
-		
 		frame.setJMenuBar(MenuBar);
 		
 	}
 
-	public static void SmartCityPage() throws IOException{
+	public static void SmartCityPage() throws IOException{//SmartCityPage is the method which runs after the user is logged in. this is the primary window
 
 		
 		
 		
-		TouristPanel.setVisible(true);
+		TouristPanel.setVisible(true); //Set TouristPanel visible as this will be the default page
 		
 		frame = new JFrame();
 		frame.setSize(900,670);	
 		frame.setBackground(Color.LIGHT_GRAY);
 
 		createMenuItems(); //Calls Navigation Menus through variable as to avoid duplicate JMenu Items with frame disposals
-		CallOne++;
 
 		
-			
+        popupMenu = new JPopupMenu();
+        Expand = new JMenuItem("Expand");
+        CopyRowLink = new JMenuItem("Copy Link");
+        Expand.addActionListener(new GUI());
+        CopyRowLink.addActionListener(new GUI());
+
+		
+		
+		
 		//TOURIST PANEL
 	
 		TouristPanel.setBackground(Color.gray);
-		TouristPanel.setLayout(null);
+		TouristPanel.setLayout(null); //Set Null Layout to for .setBounds to function
 		
 		HotelPanel.setBounds(455,250,420,350);
 		HotelPanel.setBackground(Color.red);
 		
 		HotelLabel = new JLabel("Hotels");
 		HotelPanel.add(HotelLabel);
-        String[] HotelcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
-        DefaultTableModel Hotelmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, HotelcolumnNames);
+
         
         
         
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
-        
+
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
         
-        
-        // Create scrollable table
-        Hoteltable = new JTable(Hotelmodel);
 
+        String[] HotelcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
+        DefaultTableModel Hotelmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, HotelcolumnNames); //Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
+        Hoteltable = new JTable(Hotelmodel);
+        Hoteltable.putClientProperty("title", "Hotel");//Sets Title for access from Expand() and CopyLink()
 
         TableColumn HotelcolumnToHide0 = Hoteltable.getColumnModel().getColumn(0);
         TableColumn HotelcolumnToHide1 = Hoteltable.getColumnModel().getColumn(2);
@@ -425,7 +385,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         HotelcolumnToHide0.setMaxWidth(150);
         HotelcolumnToHide0.setResizable(false);  // Prevent resizing
         DefaultTableCellRenderer Hoteldtcr = new DefaultTableCellRenderer();  
-        Hoteldtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        Hoteldtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
         HotelcolumnToHide0.setCellRenderer(Hoteldtcr);
 
         
@@ -443,43 +403,27 @@ public class GUI extends ApplicationDriver implements ActionListener{
         Hoteltable.setComponentPopupMenu(popupMenu);
         Hoteltable.addMouseListener(new TableMouseListener(Hoteltable));
         
-        JScrollPane HotelscrollPane = new JScrollPane(Hoteltable);
+        JScrollPane HotelscrollPane = new JScrollPane(Hoteltable);// Create scrollable table
         
         
         HotelPanel.add(HotelscrollPane);
-
 		HotelPanel.setBounds(455,300,420,300);
 
 		ResterauntPanel.setBounds(455,10,420,280);//455,10,420,230
 		ResterauntPanel.setBackground(Color.red);//10,200,430,400
-		
 		ResterauntLabel = new JLabel("Resteraunts");
 		ResterauntLabel.setBounds(50,0, 100, 100);
 		ResterauntPanel.add(ResterauntLabel);
 		
 		
-		
-        String[] ResterauntcolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel Resterauntmodel = new DefaultTableModel(ApplicationDriver.ResterauntsTable, ResterauntcolumnNames);
-        // Create scrollable table
-        JTable Resteraunttable = new JTable(Resterauntmodel);
-        
-        
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
-        
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
+        String[] ResterauntcolumnNames = {"Name", "Address", "Column 2", "Column 3"};
+        DefaultTableModel Resterauntmodel = new DefaultTableModel(ApplicationDriver.ResterauntsTable, ResterauntcolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
+        JTable Resteraunttable = new JTable(Resterauntmodel);
+        Resteraunttable.putClientProperty("title", "Resteraunt"); //Sets Title for access from Expand() and CopyLink()
+
         
-        
-        // Create scrollable table
-        Hoteltable = new JTable(Hotelmodel);
         TableColumn ResterauntcolumnToHide0 = Resteraunttable.getColumnModel().getColumn(0);
         TableColumn ResterauntcolumnToHide1 = Resteraunttable.getColumnModel().getColumn(2);
         TableColumn ResterauntcolumnToHide2 = Resteraunttable.getColumnModel().getColumn(3);
@@ -489,7 +433,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         ResterauntcolumnToHide0.setMaxWidth(150);
         ResterauntcolumnToHide0.setResizable(false);  // Prevent resizing
         DefaultTableCellRenderer Resterauntdtcr = new DefaultTableCellRenderer();  
-        Resterauntdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        Resterauntdtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
         ResterauntcolumnToHide0.setCellRenderer(Resterauntdtcr);
 
         
@@ -507,12 +451,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         Resteraunttable.setComponentPopupMenu(popupMenu);
         Resteraunttable.addMouseListener(new TableMouseListener(Resteraunttable));
         
-        
-        
-        
-        
-        
-        JScrollPane ResterauntscrollPane = new JScrollPane(Resteraunttable);
+        JScrollPane ResterauntscrollPane = new JScrollPane(Resteraunttable);// Create scrollable table
         ResterauntPanel.add(ResterauntscrollPane);
 		
 		WhatsonPanel.setBounds(10,260,430,340);
@@ -521,44 +460,77 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		WhatsonLabel = new JLabel("Whats on?");
 		WhatsonPanel.add(WhatsonLabel);
-        String[] WhatsoncolumnNames = {"Recent News", "test", "test", "test"};
-        DefaultTableModel WhatsOnmodel = new DefaultTableModel(ApplicationDriver.News, WhatsoncolumnNames);
-        
-        
-        
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
-        
+		
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
-        
-        
-        // Create scrollable table
+        String[] WhatsoncolumnNames = {"ID", "Recent News", "Collumn", "Collumn"};
+        DefaultTableModel WhatsOnmodel = new DefaultTableModel(ApplicationDriver.News, WhatsoncolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
         JTable WhatsOnTable = new JTable(WhatsOnmodel);
+        WhatsOnTable.putClientProperty("title", "WhatsOn"); //Sets Title for access from Expand() and CopyLink()
+
+        TableColumn WhatsOncolumnCenter = WhatsOnTable.getColumnModel().getColumn(1);
+        TableColumn WhatsOncolumnToHide1 = WhatsOnTable.getColumnModel().getColumn(0);
+        TableColumn WhatsOncolumnToHide2 = WhatsOnTable.getColumnModel().getColumn(2);
+        TableColumn WhatsOncolumnToHide3 = WhatsOnTable.getColumnModel().getColumn(3); 
+        
+
+        
+        DefaultTableCellRenderer WhatsOndtcr = new DefaultTableCellRenderer();  
+        WhatsOndtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
+        WhatsOncolumnCenter.setCellRenderer(Resterauntdtcr);
+
+        
+        WhatsOncolumnToHide1.setPreferredWidth(0);
+        WhatsOncolumnToHide1.setMinWidth(0);
+        WhatsOncolumnToHide1.setMaxWidth(0);
+        WhatsOncolumnToHide1.setResizable(false);  // Prevent resizing
+        
+        WhatsOncolumnToHide2.setPreferredWidth(0);
+        WhatsOncolumnToHide2.setMinWidth(0);
+        WhatsOncolumnToHide2.setMaxWidth(0);
+        WhatsOncolumnToHide2.setResizable(false);  // Prevent resizing
+        
+        WhatsOncolumnToHide3.setPreferredWidth(0);
+        WhatsOncolumnToHide3.setMinWidth(0);
+        WhatsOncolumnToHide3.setMaxWidth(0);
+        WhatsOncolumnToHide3.setResizable(false);  // Prevent resizing
+        
+
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
 
         
         WhatsOnTable.setComponentPopupMenu(popupMenu);
         WhatsOnTable.addMouseListener(new TableMouseListener(WhatsOnTable));
         
-        JScrollPane WhatsOnscrollPane = new JScrollPane(WhatsOnTable);
+        JScrollPane WhatsOnscrollPane = new JScrollPane(WhatsOnTable);// Create scrollable table
         
         
         WhatsonPanel.add(WhatsOnscrollPane);
 		
-		MapPanel.setBounds(10,10,430,240);
-		MapPanel.setBackground(Color.black);
+        MapButton.setBounds(10,10,430,240);
+        MapButton.setBackground(Color.black);
+
+        ImageIcon MapIcon = new ImageIcon(ImageIO.read(new File("C:\\Users\\garet\\eclipse-workspace\\SmartCity\\src\\smartCity\\GoogleMaps.png")));
+        MapButton.setIcon(MapIcon);
+        MapButton.addActionListener(new ActionListener() {
+            @Override
+
+            
+            public void actionPerformed(ActionEvent e) {
+                    try {
+                        Desktop.getDesktop().browse(new URI("https://www.google.com/maps/d/edit?mid=1LAimr8E1d0XCBIL4-oAF2yc3Hb2s2W8&usp=sharing")); // Replace with your desired URL
+                    } catch (Exception ex) {
+                        ex.printStackTrace(); // Handle any errors gracefully
+                    }
+                }
+            });
 		
 		
 		
 		
 		TouristPanel.add(WhatsonPanel);
-		TouristPanel.add(MapPanel);
+		TouristPanel.add(MapButton);
 		TouristPanel.add(ResterauntPanel);
 		TouristPanel.add(HotelPanel);
 		
@@ -571,33 +543,22 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		StudentPanel.setBackground(Color.gray);
-		StudentPanel.setLayout(null);
+		StudentPanel.setLayout(null);//Set Null Layout to for .setBounds to function
 		
 		AccomidationPanel.setBounds(455,250,420,350);
 		AccomidationPanel.setBackground(Color.red);
-		
 		AccomidationLabel = new JLabel("Avaliable Accomidation");
 		AccomidationPanel.add(AccomidationLabel);
-        String[] AccomidationcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
-        DefaultTableModel Accomidationmodel = new DefaultTableModel(ApplicationDriver.AccomidationTable, AccomidationcolumnNames);
-        
-        
-        
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
-        
+
+
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
         
-        
-        // Create scrollable table
+        String[] AccomidationcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
+        DefaultTableModel Accomidationmodel = new DefaultTableModel(ApplicationDriver.AccomidationTable, AccomidationcolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
         Accomidationtable = new JTable(Accomidationmodel);
+        Accomidationtable.putClientProperty("title", "Accomidation"); //Sets Title for access from Expand() and CopyLink()
+
         TableColumn AccomidationcolumnToHide0 = Accomidationtable.getColumnModel().getColumn(0);
         TableColumn AccomidationcolumnToHide1 = Accomidationtable.getColumnModel().getColumn(2);
         TableColumn AccomidationcolumnToHide2 = Accomidationtable.getColumnModel().getColumn(3);
@@ -607,7 +568,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         AccomidationcolumnToHide0.setMaxWidth(150);
         AccomidationcolumnToHide0.setResizable(false);  // Prevent resizing
         DefaultTableCellRenderer Accomidationdtcr = new DefaultTableCellRenderer();  
-        Accomidationdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        Accomidationdtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
         AccomidationcolumnToHide0.setCellRenderer(Accomidationdtcr);
 
         
@@ -624,15 +585,14 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         Accomidationtable.setComponentPopupMenu(popupMenu);
         Accomidationtable.addMouseListener(new TableMouseListener(Accomidationtable));
-        
-        JScrollPane AccomidationscrollPane = new JScrollPane(Accomidationtable);
+   
+        JScrollPane AccomidationscrollPane = new JScrollPane(Accomidationtable);// Create scrollable table
         
         
         AccomidationPanel.add(AccomidationscrollPane);
-
         AccomidationPanel.setBounds(455,250,420,350);
 
-        ColUniPanel.setBounds(10,200,430,400);
+        ColUniPanel.setBounds(10,250,430,350);
 		ColUniPanel.setBackground(Color.red);
 		
 		ColUniLabel = new JLabel("ColUni");
@@ -640,27 +600,13 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		ColUniPanel.add(ColUniLabel);
 		
 		
-		
-        String[] ColUnicolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel ColUnimodel = new DefaultTableModel(ApplicationDriver.UniColTable, ColUnicolumnNames);
-        // Create scrollable table
-        
-        
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
-        
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
-        
-        
-        // Create scrollable table
+        String[] ColUnicolumnNames = {"Name", "Address", "Column 2", "Column 3"};
+        DefaultTableModel ColUnimodel = new DefaultTableModel(ApplicationDriver.UniColTable, ColUnicolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
         ColUnitable = new JTable(ColUnimodel);
+        ColUnitable.putClientProperty("title", "ColUni"); //Sets Title for access from Expand() and CopyLink()
+
         TableColumn ColUnicolumnToHide0 = ColUnitable.getColumnModel().getColumn(0);
         TableColumn ColUnicolumnToHide1 = ColUnitable.getColumnModel().getColumn(2);
         TableColumn ColUnicolumnToHide2 = ColUnitable.getColumnModel().getColumn(3);
@@ -670,7 +616,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         ColUnicolumnToHide0.setMaxWidth(150);
         ColUnicolumnToHide0.setResizable(false);  // Prevent resizing
         DefaultTableCellRenderer ColUnidtcr = new DefaultTableCellRenderer();  
-        ColUnidtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        ColUnidtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
         ColUnicolumnToHide0.setCellRenderer(ColUnidtcr);
 
         
@@ -687,28 +633,21 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         ColUnitable.setComponentPopupMenu(popupMenu);
         ColUnitable.addMouseListener(new TableMouseListener(ColUnitable));
-        
-        
-        
-        
-        
-        
-        JScrollPane ColUniscrollPane = new JScrollPane(ColUnitable);
+        JScrollPane ColUniscrollPane = new JScrollPane(ColUnitable);// Create scrollable table
         ColUniPanel.add(ColUniscrollPane);
 		
-        FinanceInfoPanel.setBounds(10,10,430,180);
-        FinanceInfoPanel.setBackground(Color.yellow);
+        //FinanceInfoPanel.setBounds(10,10,430,180);
+        //FinanceInfoPanel.setBackground(Color.yellow);
 		
-        LocationsPanel.setBounds(455,10,420,230);
-        LocationsPanel.setBackground(Color.black);
-		
+        StudentImagePanel.setBounds(10,10,865,230);
 		
 		
+		JLabel StudentimageLabel = new JLabel(new ImageIcon(ImageIO.read(new File("C:\\Users\\garet\\eclipse-workspace\\SmartCity\\src\\smartCity\\StudentPhoto.jfif"))));
+		StudentImagePanel.add(StudentimageLabel); // Add the label to the panel
 		
-		StudentPanel.add(FinanceInfoPanel);
 		StudentPanel.add(ColUniPanel);
 		StudentPanel.add(AccomidationPanel);
-		StudentPanel.add(LocationsPanel);
+		StudentPanel.add(StudentImagePanel);
 		
 		
 		//End of Student Panel
@@ -721,43 +660,41 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 
 		JobPanel.setBackground(Color.gray);
-		JobPanel.setLayout(null);
+		JobPanel.setLayout(null);//Set Null Layout to for .setBounds to function
 		
 		JobPostingPanel.setBounds(235,10,300,590);
 		JobPostingPanel.setBackground(Color.red);
 		
 		JobPostingLabel = new JLabel("Job Posting");
 		JobPostingPanel.add(JobPostingLabel);
-        String[] JobPostingcolumnNames = {"Name", "Address", "Column 2", "Column 2"};
-        DefaultTableModel JobPostingmodel = new DefaultTableModel(ApplicationDriver.JobPostTable, JobPostingcolumnNames);
+
         
         
         
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
+
         
         popupMenu.add(Expand);
-        popupMenu.add(CopyRowLink);
+        popupMenu.add(CopyRowLink);    
         
-        
-        // Create scrollable table
+        String[] JobPostingcolumnNames = {"Id", "Name", "Column 2", "Column 3", "Column 4", "Column 5", "Column 6"};
+        DefaultTableModel JobPostingmodel = new DefaultTableModel(ApplicationDriver.JobPostTable, JobPostingcolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
         JobPostingtable = new JTable(JobPostingmodel);
+        JobPostingtable.putClientProperty("title", "JobPosting"); //Sets Title for access from Expand() and CopyLink()
+
+        
         TableColumn JobPostingcolumnToHide0 = JobPostingtable.getColumnModel().getColumn(0);
         TableColumn JobPostingcolumnToHide1 = JobPostingtable.getColumnModel().getColumn(2);
         TableColumn JobPostingcolumnToHide2 = JobPostingtable.getColumnModel().getColumn(3);
+        TableColumn JobPostingcolumnToHide3 = JobPostingtable.getColumnModel().getColumn(4);
+        TableColumn JobPostingcolumnToHide4 = JobPostingtable.getColumnModel().getColumn(5);
+        TableColumn JobPostingcolumnToHide5 = JobPostingtable.getColumnModel().getColumn(6);
 
         JobPostingcolumnToHide0.setPreferredWidth(150);
         JobPostingcolumnToHide0.setMinWidth(150);
         JobPostingcolumnToHide0.setMaxWidth(150);
         JobPostingcolumnToHide0.setResizable(false);  // Prevent resizing
         DefaultTableCellRenderer JobPostingdtcr = new DefaultTableCellRenderer();  
-        JobPostingdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        JobPostingdtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
         JobPostingcolumnToHide0.setCellRenderer(JobPostingdtcr);
 
         
@@ -771,11 +708,26 @@ public class GUI extends ApplicationDriver implements ActionListener{
         JobPostingcolumnToHide2.setMaxWidth(0);
         JobPostingcolumnToHide2.setResizable(false);  // Prevent resizing
         
+        JobPostingcolumnToHide3.setPreferredWidth(0);
+        JobPostingcolumnToHide3.setMinWidth(0);
+        JobPostingcolumnToHide3.setMaxWidth(0);
+        JobPostingcolumnToHide3.setResizable(false);  // Prevent resizing
+        
+        JobPostingcolumnToHide4.setPreferredWidth(0);
+        JobPostingcolumnToHide4.setMinWidth(0);
+        JobPostingcolumnToHide4.setMaxWidth(0);
+        JobPostingcolumnToHide4.setResizable(false);  // Prevent resizing
+        
+        JobPostingcolumnToHide5.setPreferredWidth(0);
+        JobPostingcolumnToHide5.setMinWidth(0);
+        JobPostingcolumnToHide5.setMaxWidth(0);
+        JobPostingcolumnToHide5.setResizable(false);  // Prevent resizing
+        
         
         JobPostingtable.setComponentPopupMenu(popupMenu);
         JobPostingtable.addMouseListener(new TableMouseListener(JobPostingtable));
         
-        JScrollPane JobPostingscrollPane = new JScrollPane(JobPostingtable);
+        JScrollPane JobPostingscrollPane = new JScrollPane(JobPostingtable);// Create scrollable table
         JobPostingscrollPane.setPreferredSize(new Dimension(300,590));
 
         
@@ -789,38 +741,30 @@ public class GUI extends ApplicationDriver implements ActionListener{
         ApprentishipsLabel.setBounds(50,0, 100, 100);
         ApprentishipsPanel.add(ApprentishipsLabel);
 		
-		
-		
-        String[] ApprentishipscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel Apprentishipsmodel = new DefaultTableModel(ApplicationDriver.ApprentishipTable, ApprentishipscolumnNames);
-        // Create scrollable table
         
-        
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
+
         
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
-        
-        
-        // Create scrollable table
+        String[] ApprentishipscolumnNames = {"Id", "Name", "Company", "Column 3", "Column 4", "Column 5", "Column 6"};
+        DefaultTableModel Apprentishipsmodel = new DefaultTableModel(ApplicationDriver.ApprentishipTable, ApprentishipscolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
         Apprentishipstable = new JTable(Apprentishipsmodel);
-        TableColumn ApprentishipscolumnToHide0 = Apprentishipstable.getColumnModel().getColumn(0);
-        TableColumn ApprentishipscolumnToHide1 = Apprentishipstable.getColumnModel().getColumn(2);
-        TableColumn ApprentishipscolumnToHide2 = Apprentishipstable.getColumnModel().getColumn(3);
+        Apprentishipstable.putClientProperty("title", "Apprentiships"); //Sets Title for access from Expand() and CopyLink()
 
+        TableColumn ApprentishipscolumnToHide0 = Apprentishipstable.getColumnModel().getColumn(1);
+        TableColumn ApprentishipscolumnToHide1 = Apprentishipstable.getColumnModel().getColumn(0);
+        TableColumn ApprentishipscolumnToHide2 = Apprentishipstable.getColumnModel().getColumn(3);
+        TableColumn ApprentishipscolumnToHide3 = Apprentishipstable.getColumnModel().getColumn(4);
+        TableColumn ApprentishipscolumnToHide4 = Apprentishipstable.getColumnModel().getColumn(5);
+        TableColumn ApprentishipscolumnToHide5 = Apprentishipstable.getColumnModel().getColumn(6);
+
+        
         ApprentishipscolumnToHide0.setPreferredWidth(150);
         ApprentishipscolumnToHide0.setMinWidth(150);
         ApprentishipscolumnToHide0.setMaxWidth(150);
         ApprentishipscolumnToHide0.setResizable(false);  // Prevent resizing
         DefaultTableCellRenderer Apprentishipsdtcr = new DefaultTableCellRenderer();  
-        Apprentishipsdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        Apprentishipsdtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
         ApprentishipscolumnToHide0.setCellRenderer(Apprentishipsdtcr);
 
         
@@ -834,18 +778,26 @@ public class GUI extends ApplicationDriver implements ActionListener{
         ApprentishipscolumnToHide2.setMaxWidth(0);
         ApprentishipscolumnToHide2.setResizable(false);  // Prevent resizing
         
+        ApprentishipscolumnToHide3.setPreferredWidth(0);
+        ApprentishipscolumnToHide3.setMinWidth(0);
+        ApprentishipscolumnToHide3.setMaxWidth(0);
+        ApprentishipscolumnToHide3.setResizable(false);  // Prevent resizing
+
+        ApprentishipscolumnToHide4.setPreferredWidth(0);
+        ApprentishipscolumnToHide4.setMinWidth(0);
+        ApprentishipscolumnToHide4.setMaxWidth(0);
+        ApprentishipscolumnToHide4.setResizable(false);  // Prevent resizing
+        
+        ApprentishipscolumnToHide5.setPreferredWidth(0);
+        ApprentishipscolumnToHide5.setMinWidth(0);
+        ApprentishipscolumnToHide5.setMaxWidth(0);
+        ApprentishipscolumnToHide5.setResizable(false);  // Prevent resizing 
         
         Apprentishipstable.setComponentPopupMenu(popupMenu);
         Apprentishipstable.addMouseListener(new TableMouseListener(Apprentishipstable));
-        
-        
-        
-        
-        
-        
-        JScrollPane ApprentishipsscrollPane = new JScrollPane(Apprentishipstable);
+        JScrollPane ApprentishipsscrollPane = new JScrollPane(Apprentishipstable);// Create scrollable table
         ApprentishipsscrollPane.setPreferredSize(new Dimension(330,325));
-
+        
         ApprentishipsPanel.add(ApprentishipsscrollPane);
         
         
@@ -858,40 +810,27 @@ public class GUI extends ApplicationDriver implements ActionListener{
         JLabel IndustriesLabel = new JLabel("Avaliable Indurstries");
         IndustriesLabel.setBounds(50,0, 100, 100);
         IndustriesPanel.add(IndustriesLabel);
-		
+        
+        popupMenu.add(Expand);
+        popupMenu.add(CopyRowLink);
         String[] IndustriescolumnNames = {"Industry"};
-        DefaultTableModel Industriesmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, IndustriescolumnNames);
-        // Create scrollable table
+        DefaultTableModel Industriesmodel = new DefaultTableModel(ApplicationDriver.HotelsTable, IndustriescolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
         JTable Industriestable = new JTable(Industriesmodel);
- 
-        
-        
-        
-        
-        JScrollPane IndustriesscrollPane = new JScrollPane(Industriestable);
+
+        JScrollPane IndustriesscrollPane = new JScrollPane(Industriestable);// Create scrollable table
         IndustriesscrollPane.setPreferredSize(new Dimension(335,260));
 
         IndustriesPanel.add(IndustriesscrollPane);
-        
-        
-        
-        
-        
-        
-		
-        JobSeekersPanel.setBounds(10,100,215,205);
-        JobSeekersPanel.setBackground(Color.yellow);
-		
-        VolunteeringPanel.setBounds(10,315,215,200);
-        VolunteeringPanel.setBackground(Color.black);
-		
+        JobPostingImage.setBounds(10,10,220,590);		
+		JLabel JobPostingLabel = new JLabel(new ImageIcon(ImageIO.read(new File("C:\\Users\\garet\\eclipse-workspace\\SmartCity\\src\\smartCity\\businessPhoto.jpg")).getScaledInstance(230, 610, Image.SCALE_SMOOTH)));
+		JobPostingImage.add(JobPostingLabel); // Add the label to the panel
 		
 		
 		
         JobPanel.add(JobPostingPanel);
         JobPanel.add(ApprentishipsPanel);
         JobPanel.add(JobSeekersPanel);
-        JobPanel.add(VolunteeringPanel);
+        JobPanel.add(JobPostingImage);
         JobPanel.add(IndustriesPanel);
 
 		
@@ -907,43 +846,41 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
 
 		BusinessPanel.setBackground(Color.gray);
-		BusinessPanel.setLayout(null);
+		BusinessPanel.setLayout(null);//Set Null Layout to for .setBounds to function
 		UnitsPanel.setBounds(545,340,335,260);
 		UnitsPanel.setBackground(Color.red);
 		
+		BuisnessPhotoPanel = new JPanel(new BorderLayout());  //Business Sub-Panels
+		BufferedImage myPicture = ImageIO.read(new File("C:\\Users\\garet\\eclipse-workspace\\SmartCity\\src\\smartCity\\CardiffskylineBusiness.JPG"));
+		Image scaledImage = myPicture.getScaledInstance(215, 590, Image.SCALE_SMOOTH); 
+		JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+		BuisnessPhotoPanel.add(imageLabel); // Add the label to the panel
+
+
+
 		UnitsLabel = new JLabel("Rentable units");
 		UnitsPanel.add(UnitsLabel);
-        String[] UnitscolumnNames = {"Name", "Address", "Column 2", "Column 2"};
-        DefaultTableModel Unitsmodel = new DefaultTableModel(ApplicationDriver.RentableSpacesTable, UnitscolumnNames);
-        
-        
-        
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
-        
+		
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
-        
-        
-        // Create scrollable table
+        String[] UnitscolumnNames = {"Name", "Address", "Column 1", "Column 2", "Column 3", "Column 4"};
+        DefaultTableModel Unitsmodel = new DefaultTableModel(ApplicationDriver.RentableSpacesTable, UnitscolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
         Unitstable = new JTable(Unitsmodel);
-        
+        Unitstable.putClientProperty("title", "RentableSpaces"); //Sets Title for access from Expand() and CopyLink()
+
         TableColumn UnitscolumnToHide0 = Unitstable.getColumnModel().getColumn(0);
         TableColumn UnitscolumnToHide1 = Unitstable.getColumnModel().getColumn(2);
         TableColumn UnitscolumnToHide2 = Unitstable.getColumnModel().getColumn(3);
-
+        TableColumn UnitscolumnToHide3 = Unitstable.getColumnModel().getColumn(4);
+        TableColumn UnitscolumnToHide4 = Unitstable.getColumnModel().getColumn(5);
+        
+        
         UnitscolumnToHide0.setPreferredWidth(150);
         UnitscolumnToHide0.setMinWidth(150);
         UnitscolumnToHide0.setMaxWidth(150);
         UnitscolumnToHide0.setResizable(false);  // Prevent resizing
         DefaultTableCellRenderer Unitsdtcr = new DefaultTableCellRenderer();  
-        Unitsdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        Unitsdtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
         UnitscolumnToHide0.setCellRenderer(Unitsdtcr);
 
         
@@ -957,57 +894,49 @@ public class GUI extends ApplicationDriver implements ActionListener{
         UnitscolumnToHide2.setMaxWidth(0);
         UnitscolumnToHide2.setResizable(false);  // Prevent resizing
         
+        UnitscolumnToHide3.setPreferredWidth(0);
+        UnitscolumnToHide3.setMinWidth(0);
+        UnitscolumnToHide3.setMaxWidth(0);
+        UnitscolumnToHide3.setResizable(false);  // Prevent resizing
+        
+        UnitscolumnToHide4.setPreferredWidth(0);
+        UnitscolumnToHide4.setMinWidth(0);
+        UnitscolumnToHide4.setMaxWidth(0);
+        UnitscolumnToHide4.setResizable(false);  // Prevent resizing
         
         Unitstable.setComponentPopupMenu(popupMenu);
         Unitstable.addMouseListener(new TableMouseListener(Unitstable));
         
-        JScrollPane UnitsscrollPane = new JScrollPane(Unitstable);
-        
+        JScrollPane UnitsscrollPane = new JScrollPane(Unitstable);// Create scrollable table
         UnitsscrollPane.setPreferredSize(new Dimension(334, 258));
+        
         UnitsPanel.add(UnitsscrollPane);
-
-
         NewBuinessPanel.setBounds(545,10,330,325);
         NewBuinessPanel.setBackground(Color.red);
-		
         NewBuinessLabel = new JLabel("New Businesses");
         NewBuinessLabel.setBounds(50,0, 100, 100);
         NewBuinessPanel.add(NewBuinessLabel);
-		
-		
-		
-        String[] NewBuinesscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel NewBuinessmodel = new DefaultTableModel(ApplicationDriver.NewBuisnessesTable, NewBuinesscolumnNames);
-        // Create scrollable table
-        
-        
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
         
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
-        
-        
-        // Create scrollable table
+        String[] NewBuinesscolumnNames = {"Name", "Description", "Column 2", "Column 3", "Column 4", "Column 5"};
+        DefaultTableModel NewBuinessmodel = new DefaultTableModel(ApplicationDriver.NewBuisnessesTable, NewBuinesscolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
         NewBuinesstable = new JTable(NewBuinessmodel);
-        
+        NewBuinesstable.putClientProperty("title", "NewBuiness"); //Sets Title for access from Expand() and CopyLink()
+
 
         TableColumn NewBuinesscolumnToHide0 = NewBuinesstable.getColumnModel().getColumn(0);
         TableColumn NewBuinesscolumnToHide1 = NewBuinesstable.getColumnModel().getColumn(2);
         TableColumn NewBuinesscolumnToHide2 = NewBuinesstable.getColumnModel().getColumn(3);
-
+        TableColumn NewBuinesscolumnToHide3 = NewBuinesstable.getColumnModel().getColumn(4);
+        TableColumn NewBuinesscolumnToHide4 = NewBuinesstable.getColumnModel().getColumn(5);
+        
         NewBuinesscolumnToHide0.setPreferredWidth(150);
         NewBuinesscolumnToHide0.setMinWidth(150);
         NewBuinesscolumnToHide0.setMaxWidth(150);
         NewBuinesscolumnToHide0.setResizable(false);  // Prevent resizing
         DefaultTableCellRenderer NewBuinessdtcr = new DefaultTableCellRenderer();  
-        NewBuinessdtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        NewBuinessdtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
         NewBuinesscolumnToHide0.setCellRenderer(NewBuinessdtcr);
 
         
@@ -1021,141 +950,93 @@ public class GUI extends ApplicationDriver implements ActionListener{
         NewBuinesscolumnToHide2.setMaxWidth(0);
         NewBuinesscolumnToHide2.setResizable(false);  // Prevent resizing
         
+        NewBuinesscolumnToHide3.setPreferredWidth(0);
+        NewBuinesscolumnToHide3.setMinWidth(0);
+        NewBuinesscolumnToHide3.setMaxWidth(0);
+        NewBuinesscolumnToHide3.setResizable(false);  // Prevent resizing
+        
+        NewBuinesscolumnToHide4.setPreferredWidth(0);
+        NewBuinesscolumnToHide4.setMinWidth(0);
+        NewBuinesscolumnToHide4.setMaxWidth(0);
+        NewBuinesscolumnToHide4.setResizable(false);  // Prevent resizing
+        
         NewBuinesstable.setComponentPopupMenu(popupMenu);
         NewBuinesstable.addMouseListener(new TableMouseListener(NewBuinesstable));
 
-        JScrollPane NewBuinessscrollPane = new JScrollPane(NewBuinesstable);
+        JScrollPane NewBuinessscrollPane = new JScrollPane(NewBuinesstable);// Create scrollable table
         NewBuinessscrollPane.setPreferredSize(new Dimension(330,325));
         NewBuinessPanel.add(NewBuinessscrollPane);
         
         //News Panel
         
 
-        BuinessNewsPanel.setBounds(235,10,300,590);
-        BuinessNewsPanel.setBackground(Color.red);
+        BusinessNewsPanel.setBounds(235,10,300,590);
+        BusinessNewsPanel.setBackground(Color.red);
 		
-        BuinessNewsLabel = new JLabel("Business News");
-        BuinessNewsLabel.setBounds(50,0, 100, 100);
-        BuinessNewsPanel.add(BuinessNewsLabel);
+        BusinessNewsLabel = new JLabel("Business News");
+        BusinessNewsLabel.setBounds(50,0, 100, 100);
+        BusinessNewsPanel.add(BusinessNewsLabel);
 		
-		
-		
-        String[] BuinessNewscolumnNames = {"Name", "Column 1", "Column 2", "Column 3"};
-        DefaultTableModel BuinessNewsmodel = new DefaultTableModel(ApplicationDriver.BusinessNewsTable, BuinessNewscolumnNames);
-        // Create scrollable table
-        
-        
-        
-        popupMenu = new JPopupMenu();
-        Expand = new JMenuItem("Expand");
-        CopyRowLink = new JMenuItem("Copy Link");
-        
-        Expand.addActionListener(new GUI());
-        CopyRowLink.addActionListener(new GUI());
-        
-        
         popupMenu.add(Expand);
         popupMenu.add(CopyRowLink);
-        
-        
-        // Create scrollable table
-        BuinessNewstable = new JTable(BuinessNewsmodel);
-        TableColumn BuinessNewscolumnToHide0 = BuinessNewstable.getColumnModel().getColumn(0);
-        TableColumn BuinessNewscolumnToHide1 = BuinessNewstable.getColumnModel().getColumn(2);
-        TableColumn BuinessNewscolumnToHide2 = BuinessNewstable.getColumnModel().getColumn(3);
+        String[] BusinessNewscolumnNames = {"Name", "Description", "Column 2", "Column 3"};
+        DefaultTableModel BusinessNewsmodel = new DefaultTableModel(ApplicationDriver.BusinessNewsTable, BusinessNewscolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
+        BusinessNewstable = new JTable(BusinessNewsmodel);
+        BusinessNewstable.putClientProperty("title", "BusinessNews"); //Sets Title for access from Expand() and CopyLink()
 
-        BuinessNewscolumnToHide0.setPreferredWidth(150);
-        BuinessNewscolumnToHide0.setMinWidth(150);
-        BuinessNewscolumnToHide0.setMaxWidth(150);
-        BuinessNewscolumnToHide0.setResizable(false);  // Prevent resizing
-        DefaultTableCellRenderer BuinessNewsdtcr = new DefaultTableCellRenderer();  
-        BuinessNewsdtcr.setHorizontalAlignment(SwingConstants.CENTER);
-        BuinessNewscolumnToHide0.setCellRenderer(BuinessNewsdtcr);
+        TableColumn BusinessNewscolumnToHide0 = BusinessNewstable.getColumnModel().getColumn(0);
+        TableColumn BusinessNewscolumnToHide1 = BusinessNewstable.getColumnModel().getColumn(2);
+        TableColumn BusinessNewscolumnToHide2 = BusinessNewstable.getColumnModel().getColumn(3);
+        TableColumn BusinessNewscolumnToHide3 = BusinessNewstable.getColumnModel().getColumn(1);
 
-        
-        BuinessNewscolumnToHide1.setPreferredWidth(0);
-        BuinessNewscolumnToHide1.setMinWidth(0);
-        BuinessNewscolumnToHide1.setMaxWidth(0);
-        BuinessNewscolumnToHide1.setResizable(false);  // Prevent resizing
-        
-        BuinessNewscolumnToHide2.setPreferredWidth(0);
-        BuinessNewscolumnToHide2.setMinWidth(0);
-        BuinessNewscolumnToHide2.setMaxWidth(0);
-        BuinessNewscolumnToHide2.setResizable(false);  // Prevent resizing
-        
-        BuinessNewstable.setComponentPopupMenu(popupMenu);
-        BuinessNewstable.addMouseListener(new TableMouseListener(BuinessNewstable));
 
-        JScrollPane BuinessNewsscrollPane = new JScrollPane(BuinessNewstable);
-        BuinessNewsscrollPane.setPreferredSize(new Dimension(300,590));
-
-        BuinessNewsPanel.add(BuinessNewsscrollPane);
-        
-        
-        
+        BusinessNewscolumnToHide0.setResizable(false);  // Prevent resizing
+        DefaultTableCellRenderer BusinessNewsdtcr = new DefaultTableCellRenderer();  
+        BusinessNewsdtcr.setHorizontalAlignment(SwingConstants.CENTER); //Set Column text to centre of column 
+        BusinessNewscolumnToHide0.setCellRenderer(BusinessNewsdtcr);
 
         
+        BusinessNewscolumnToHide1.setPreferredWidth(0);
+        BusinessNewscolumnToHide1.setMinWidth(0);
+        BusinessNewscolumnToHide1.setMaxWidth(0);
+        BusinessNewscolumnToHide1.setResizable(false);  // Prevent resizing
         
+        BusinessNewscolumnToHide2.setPreferredWidth(0);
+        BusinessNewscolumnToHide2.setMinWidth(0);
+        BusinessNewscolumnToHide2.setMaxWidth(0);
+        BusinessNewscolumnToHide2.setResizable(false);  // Prevent resizing
         
+        BusinessNewscolumnToHide3.setPreferredWidth(0);
+        BusinessNewscolumnToHide3.setMinWidth(0);
+        BusinessNewscolumnToHide3.setMaxWidth(0);
+        BusinessNewscolumnToHide3.setResizable(false);  // Prevent resizing
         
-        
-        
+        BusinessNewstable.setComponentPopupMenu(popupMenu); //Required to have the right click functioning
+        BusinessNewstable.addMouseListener(new TableMouseListener(BusinessNewstable));
+
+        JScrollPane BusinessNewsscrollPane = new JScrollPane(BusinessNewstable);// Create scrollable table
+        BusinessNewsscrollPane.setPreferredSize(new Dimension(300,590));
+        BusinessNewsPanel.add(BusinessNewsscrollPane);
 		
         BuisnessPhotoPanel.setBounds(10,10,215,590);
         BuisnessPhotoPanel.setBackground(Color.yellow);
-		
-		
-		
-		
+
         BusinessPanel.add(NewBuinessPanel);
         BusinessPanel.add(UnitsPanel);
         BusinessPanel.add(BuisnessPhotoPanel);
-        BusinessPanel.add(BuinessNewsPanel);
+        BusinessPanel.add(BusinessNewsPanel);
 
-        
-        
-        
-        
-        
-        
-		
+
 		//End of Business Panel
 		
-		
-		
 
-
-
-		
-		
-		
-		
-		
-		
-		
-
-		
-
-		frame.add(TouristPanel);
-
-		
-
+		frame.add(TouristPanel); //Adds tourist panel as to set the panel as default
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 
-
 	
-	public GUI() {
-		
-		
-		
-		
-		
-	}
-	
-	
-	private void AdminNavigator() {
+	private void AdminNavigator() { //Admin navigator is used as a menu between 3 different windows for the admin
 		
 		AdminNavPanel = new JPanel();
 		AdminNavFrame = new JFrame();
@@ -1205,34 +1086,31 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 
 		
-        String[] UnitscolumnNames = {"ID", "UserName", "Fullname", "Email", "DateCreated"};
-        DefaultTableModel UserVerificationModel = new DefaultTableModel(Users, UnitscolumnNames);
+        String[] UnitscolumnNames = {"ID", "UserName", "Fullname", "Email", "DateCreated"}; //Collumn names
+        DefaultTableModel UserVerificationModel = new DefaultTableModel(Users, UnitscolumnNames);//Set Table model to the 2D array in ApplicationDriver that is relevent to the panel
 
         
-        // Create scrollable table
-        UserVerificationTable = new JTable(UserVerificationModel);
+        UserVerificationTable = new JTable(UserVerificationModel); //Sets Table
         
-        TableColumn UnitscolumnToHide0 = UserVerificationTable.getColumnModel().getColumn(0);
-
-
-        UnitscolumnToHide0.setPreferredWidth(0);
+        
+        TableColumn UnitscolumnToHide0 = UserVerificationTable.getColumnModel().getColumn(0);//Hides Column
+        UnitscolumnToHide0.setPreferredWidth(0); 
         UnitscolumnToHide0.setMinWidth(0);
         UnitscolumnToHide0.setMaxWidth(0);
         UnitscolumnToHide0.setResizable(false);  // Prevent resizing
 
 
         
-        JScrollPane UserVerificationScrollPane = new JScrollPane(UserVerificationTable);
+        JScrollPane UserVerificationScrollPane = new JScrollPane(UserVerificationTable); //Creates scrollable table
         
-        UserVerificationScrollPane.setPreferredSize(new Dimension(400, 300));
+        UserVerificationScrollPane.setPreferredSize(new Dimension(400, 300)); //Sets dimensions 
         AdminUserVerificationPanel.add(UserVerificationScrollPane);
 
 
 		DeleteUserButton = new JButton("Delete User");
 		DeleteUserButton.setBounds(90, 600, 200,50);
 		DeleteUserButton.addActionListener(e -> {
-		    int selectedRow = UserVerificationTable.getSelectedRow();
-	        System.out.println(selectedRow);
+		    int selectedRow = UserVerificationTable.getSelectedRow(); //Get selected row
 
 		    if (selectedRow != -1) {
 		        String userId = (String) UserVerificationTable.getValueAt(selectedRow, 0); // Retrieve ID at column 0
@@ -1241,7 +1119,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		        // Confirmation pop-up
 		        int confirmation = JOptionPane.showConfirmDialog(
 		                AdminUserVerificationFrame,
-		                "Are you sure you want to Delete the selected user?",
+		                "Are you sure you want to Delete the selected user?", //Popup verifying if admin wants to delete user
 		                "Confirm Deletion",
 		                JOptionPane.YES_NO_OPTION
 		        );
@@ -1278,15 +1156,14 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		VerifyUserRowButton = new JButton("Verify User");
 		VerifyUserRowButton.setBounds(250, 450, 100,50);
 		VerifyUserRowButton.addActionListener(e -> {
-		    int selectedRow = UserVerificationTable.getSelectedRow();
-	        System.out.println(selectedRow);
+		    int selectedRow = UserVerificationTable.getSelectedRow();//Get selected row
 
 		    if (selectedRow != -1) {
 		        String userId = (String) UserVerificationTable.getValueAt(selectedRow, 0); // Retrieve ID at column 0
 
 		        
 		        // Confirmation pop-up
-		        int confirmation = JOptionPane.showConfirmDialog(
+		        int confirmation = JOptionPane.showConfirmDialog( //popup confirming if to verify the user
 		                AdminUserVerificationFrame,
 		                "Are you sure you want to verify the selected user?",
 		                "Confirm Verification",
@@ -1330,9 +1207,9 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	
 	
 	
-	private void AdminRecordViewer() {
+	private void AdminRecordViewer() {//Allows Admin to view tables within the Database, excluding users
 		
-        categoryComboBox.addItem("Hotels");
+        categoryComboBox.addItem("Hotels"); //Adds options to combobox where the admin can select their desired table
         categoryComboBox.addItem("Resteraunts");
         categoryComboBox.addItem("News");
         categoryComboBox.addItem("Accomidation");
@@ -1343,7 +1220,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         categoryComboBox.addItem("NewBuisnesses");
         AdminRecordViewerTable = new JTable();
    
-        LoadNewTable("Hotels");
+        LoadNewTable("Hotels");//Loads hotels Table as default option
         
         AdminRecordViewerPanel = new JPanel();
         AdminRecordViewerFrame = new JFrame();
@@ -1354,14 +1231,10 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 
 		
-        DefaultRecordModel = new DefaultTableModel(AdminTableData, AdminColumnNames);
-
-        
-        // Create scrollable table
+        DefaultRecordModel = new DefaultTableModel(AdminTableData, AdminColumnNames);//Sets AdminTableData as default option
         AdminRecordViewerTable = new JTable(DefaultRecordModel);
         AdminRecordViewerTable.setAutoCreateColumnsFromModel(true); // Adapt to model changes
-
-        AdminHiddenCollumn0 = AdminRecordViewerTable.getColumnModel().getColumn(0);
+        AdminHiddenCollumn0 = AdminRecordViewerTable.getColumnModel().getColumn(0); //Hides ID 
 
 
         AdminHiddenCollumn0.setPreferredWidth(0);
@@ -1371,7 +1244,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 
         
-        JScrollPane AdminRecordViewerScrollPane = new JScrollPane(AdminRecordViewerTable);
+        JScrollPane AdminRecordViewerScrollPane = new JScrollPane(AdminRecordViewerTable);// Create scrollable table
         AdminRecordViewerScrollPane.setPreferredSize(new Dimension(400, 300));
 
         AdminRecordViewerTablePanel.setBounds(15, 50, 400, 300);
@@ -1381,15 +1254,15 @@ public class GUI extends ApplicationDriver implements ActionListener{
         
         AdminSearchRecordButton = new JButton("Search");
         AdminSearchRecordButton.setBounds(320, 0, 95,50);
-        AdminSearchRecordButton.addActionListener(e -> {
+        AdminSearchRecordButton.addActionListener(e -> { //Sets action listener for search button
 
 
-        	for(int I = 0; I < AdminTableData.length; I++ ) {
+        	for(int I = 0; I < AdminTableData.length; I++ ) { //Iterate through each row in AdminTableData 
         		
-        		if(AdminTableData[I][0].equals(AdminRecordSearch.getText())) {
+        		if(AdminTableData[I][0].equals(AdminRecordSearch.getText())) {//If current row is equals to search input run the following
         			
     		        // Confirmation pop-up
-        			String[] Options = {"Delete", "Edit"};
+        			String[] Options = {"Delete", "Edit"}; //Options for Pop up
         			int answer = JOptionPane.showOptionDialog(
         		               frame,
         		               "Select following action for ID: " + AdminRecordSearch.getText(), 
@@ -1404,12 +1277,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
     		        
     		        
     		        
-    		        if (answer == JOptionPane.YES_OPTION) {
+    		        if (answer == JOptionPane.YES_OPTION) { //If option selected is delete record
 
     		        	
     		        	try {
-    		        		String SearchID = AdminRecordSearch.getText();
-    						if(DBInstance.DeleteRecord(SearchID, SelectedSQL)) {
+    		        		String SearchID = AdminRecordSearch.getText(); //Convert given variable into string
+    						if(DBInstance.DeleteRecord(SearchID, SelectedSQL)) { //Delete record with ID and current selected table
     					        System.out.println("Record Deleted");
     					        DefaultRecordModel.removeRow(I); //Removes Record from table
 
@@ -1421,16 +1294,16 @@ public class GUI extends ApplicationDriver implements ActionListener{
     					}
 
 
-    		        }else if(answer == JOptionPane.NO_OPTION){
-    		            String[] rowData = new String[AdminTableData[I].length];
+    		        }else if(answer == JOptionPane.NO_OPTION){//If option selected i Edit record
+    		            String[] rowData = new String[AdminTableData[I].length];//Initialise rowData with length of current row
 
-    		            for (int i = 0; i < rowData.length; i++) {
+    		            for (int i = 0; i < rowData.length; i++) { //Iterates through AdminTableData and sets column value to rowData
     		                rowData[i] = (String) AdminTableData[I][i];
     		            }
     		            
     		            
     		            try {
-							showEditRecordFrame(AdminColumnNames, rowData);
+							showEditRecordFrame(AdminColumnNames, rowData);//Runs pop up to edit record. provides column names and previously created rowData
 						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
@@ -1444,8 +1317,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
         			
         		}
         		
-        		if(I == AdminTableData.length) {
-    		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please Enter a valid ID");
+        		if(I == AdminTableData.length) { //No row with the matching ID was found
+    		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please Enter a valid ID"); //Shows dialogue telling user to enter valid id
 
         		}
         		
@@ -1466,7 +1339,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
         categoryComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	LoadNewTable((String) categoryComboBox.getSelectedItem());
+            	LoadNewTable((String) categoryComboBox.getSelectedItem()); //When new combobox item is selected, run LoadNewTable method.
             }
         });
         
@@ -1478,15 +1351,15 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		DeleteRecordButton = new JButton("Delete Record");
 		DeleteRecordButton.setBounds(40, 360, 100,50);
 		DeleteRecordButton.addActionListener(e -> {
-		    int selectedRow = AdminRecordViewerTable.getSelectedRow();
+		    int selectedRow = AdminRecordViewerTable.getSelectedRow(); //Gets selected row from table
 	        System.out.println(selectedRow);
 
-		    if (selectedRow != -1) {
+		    if (selectedRow != -1) { //If a row is selected run the following
 		        String userId = (String) AdminRecordViewerTable.getValueAt(selectedRow, 0); // Retrieve ID at column 0
 
 		        
 		        // Confirmation pop-up
-		        int confirmation = JOptionPane.showConfirmDialog(
+		        int confirmation = JOptionPane.showConfirmDialog( //Confirm Deletion pop up
 		        		AdminRecordViewerFrame,
 		                "Are you sure you want to delete the selected record?",
 		                "Confirm Deletion",
@@ -1499,7 +1372,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 		        	
 		        	try {
-						if(DBInstance.DeleteRecord(userId, SelectedSQL)) {
+						if(DBInstance.DeleteRecord(userId, SelectedSQL)) { //Deletes record from table with ID
 					        System.out.println("Record Deleted");
 					        DefaultRecordModel.removeRow(selectedRow); //Removes Record from table
 
@@ -1515,7 +1388,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		        
 		        
 		    } else {
-		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please select a user to delete.");
+		        JOptionPane.showMessageDialog(AdminUserVerificationFrame, "Please select a user to delete."); //If no row is selected show pop up
 		    }
 		});
 		
@@ -1527,18 +1400,16 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		EditRecordButton.addActionListener(e -> {
 			
 			
-		    int selectedRow = AdminRecordViewerTable.getSelectedRow();
-	        //String userId = (String) AdminRecordViewerTable.getValueAt(selectedRow, 0); // Retrieve ID at column 0
-			
-            String[] rowData = new String[AdminTableData[selectedRow].length];
+		    int selectedRow = AdminRecordViewerTable.getSelectedRow(); //Gets selected row from table
+            String[] rowData = new String[AdminTableData[selectedRow].length];//Initialises rowData with length of selected row
 
-            for (int i = 0; i < rowData.length; i++) {
-                rowData[i] = (String) AdminTableData[selectedRow][i];
+            for (int i = 0; i < rowData.length; i++) {//Iterates through rowData length
+                rowData[i] = (String) AdminTableData[selectedRow][i]; //Iterates AdminTableData and inserts columns in rowData
             }
             
             
             try {
-				showEditRecordFrame(AdminColumnNames, rowData);
+				showEditRecordFrame(AdminColumnNames, rowData); //Runs showEditRecordFrame method with included parameters
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
@@ -1557,7 +1428,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			
 			
             try {
-				showAddRecordFrame(AdminColumnNames);
+				showAddRecordFrame(AdminColumnNames); //Runs showAddRecordFrame method with the column names
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
@@ -1571,10 +1442,8 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		
-		AdminRecordViewerPanel.add(AddRecordButton);
-
+		AdminRecordViewerPanel.add(AddRecordButton); //Adds all components to parent panel
 		AdminRecordViewerPanel.add(EditRecordButton);
-
 		AdminRecordViewerPanel.add(AdminSearchRecordButton);
 		AdminRecordViewerPanel.add(AdminRecordSearch);
 		AdminRecordViewerPanel.add(DeleteRecordButton);
@@ -1584,17 +1453,15 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
         
-		AdminRecordViewerFrame.add(AdminRecordViewerPanel);
-
-        AdminRecordViewerPanel.setLayout(null);
-
+		AdminRecordViewerFrame.add(AdminRecordViewerPanel); //Adds parent panel to Jframe
+        AdminRecordViewerPanel.setLayout(null);//Set Null Layout to for .setBounds to function
         AdminRecordViewerFrame.setLocationRelativeTo(null);
         AdminRecordViewerFrame.setVisible(true);
 		
 	}
 
 	
-	private void ChangeDetails() {
+	private void ChangeDetails() {//Change details method for users to change UserName and Email
 		
 		
 		
@@ -1604,7 +1471,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		ChangeDetailframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //DISPOSE_ON_CLOSE stops exit button closing the entire program
 		ChangeDetailframe.add(ChangeDetailspanel);
 		
-		ChangeDetailspanel.setLayout(null);
+		ChangeDetailspanel.setLayout(null);//Set Null Layout to for .setBounds to function
 		
 		JLabel ChangeDetailsLabel = new JLabel("Change account details");
 		ChangeDetailsLabel.setBounds(130, 20, 170, 25);
@@ -1635,7 +1502,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		ChangeDetailsPageButton.addActionListener(new GUI());
 		ChangeDetailspanel.add(ChangeDetailsPageButton);
 		
-		ChangeDetailsSuccessLabel = new JLabel("");
+		ChangeDetailsSuccessLabel = new JLabel(""); //Notifies user if change is successful or failed
 		ChangeDetailsSuccessLabel.setBounds(110, 180, 300, 25);
 		ChangeDetailspanel.add(ChangeDetailsSuccessLabel);
 		
@@ -1657,48 +1524,41 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 		 System.out.println(e.getActionCommand());
 		
-		if(!LoggedIn) { 
+		if(!LoggedIn) {  //Only run following if not logged in
 			
 			
-			if(e.getActionCommand() == "login") {
-				String userName = UserNameText.getText();
+			if(e.getActionCommand() == "login") { //If button Login pressed
+				String userName = UserNameText.getText(); //Gets both user entries
 				String Password = PasswordText.getText();
 			
 			
 				
 				try {
-					 ApplicationDriver.UserResult = DBInstance.LoginVerification(userName, Password);
-					 System.out.println(UserResult[0]);
+					 ApplicationDriver.UserResult = DBInstance.LoginVerification(userName, Password); //Store returned result of LoginVerification
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
 				
 				
-				if(ApplicationDriver.UserResult[0].equals("User Unverified")) {
-					System.out.println("User is unverified");
-					SuccessLabel.setText("Please Wait to be verified");
-				}else if(ApplicationDriver.UserResult[0].equals("Wrong Username or Password")){
-					//System.out.println("Wrong Username or Password!");
-					SuccessLabel.setText("Wrong Username or Password!");
-				}else if(ApplicationDriver.UserResult[0].equals("Success")){
-						if(ApplicationDriver.UserResult[8].equals("0")) {
-							System.out.println(ApplicationDriver.UserResult[8]);
-							System.out.println("LogIn Success");
-							frame.dispose();
-							ApplicationDriver.LoggedIn = true;
-							LoggedIn = true;
-							
-							try {
-								SmartCityPage();
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
+				if(ApplicationDriver.UserResult[0].equals("User Unverified")) { //If first column of UserResult returns User Unverified then run following
+					SuccessLabel.setText("Please Wait to be verified"); //Change SuccessLabel in Login()
+				
+				}else if(ApplicationDriver.UserResult[0].equals("Wrong Username or Password")){ //If password or username incorrect
+					SuccessLabel.setText("Wrong Username or Password!");//Change SuccessLabel in Login()
+				
+				}else if(ApplicationDriver.UserResult[0].equals("Success")){//If first column returns Success
+						if(ApplicationDriver.UserResult[8].equals("0")) {//If user is not an admin
+
+							frame.dispose(); //Dispose of Login frame
+							ApplicationDriver.LoggedIn = true; //Set Parent variable to true
+							LoggedIn = true; //Set local variable to true
+							ApplicationDriver.FrameStopper = 0; //Allows thread to enter into SmartCityApp
+
 						}else {
-							frame.dispose();
-							AdminNavigator();
-							ApplicationDriver.LoggedIn = true;
-							LoggedIn = true;
+							frame.dispose(); //Dispose of Login frame
+							AdminNavigator(); //Opens Admin navigator
+							ApplicationDriver.LoggedIn = true; //Set Parent variable to true
+							LoggedIn = true;//Set local variable to true
 						}
 
 				}
@@ -1706,40 +1566,35 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			
 			}
 			
-			if(e.getActionCommand() == "Back") { 
-				frame.dispose();
-				try {
-					Login();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+			if(e.getActionCommand() == "Back") { //Back button in the Register page
+				frame.dispose();//Dispose of register page
+				ApplicationDriver.FrameStopper = 0; //Allows thread to enter into Login
+
 			}
 
 			
 			if(e.getActionCommand() == "Register") { 
 
-					System.out.println("Register");
-					frame.dispose();
+					frame.dispose();//Dispose of Login page
 					try {
-						Register();
+						Register(); //Run Register() method
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 			
 			}
 			
-			if(e.getActionCommand() == "Register Account") { 
+			if(e.getActionCommand() == "Register Account") { //If register button pressed in Register page
 
 				
 				System.out.println("Register Account");
-				String RegUserName = RegisterPageUserNameText.getText();
+				String RegUserName = RegisterPageUserNameText.getText();//Set local variables from textbox inputs from the Register page
 				String RegFullName = RegisterPageFullNameText.getText();
 				String RegPassword = RegisterPagePasswordText.getText();
 				String RegRePassword = RegisterPageRePasswordText.getText();
-				Pattern EmailPattern = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+				Pattern EmailPattern = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"); //Regex pattern for Email entry verification
 				String RegEmail = RegisterPageEmaillText.getText();
-				if(!EmailPattern.matcher(RegEmail).matches()) { //Regex checker for the email to ensure no spam
+				if(!EmailPattern.matcher(RegEmail).matches()) { //Regex checker for the email to ensure no spam or false emails
 					RegisterSuccessLabel.setText("Enter a valid email");
 
 					System.out.println("Email is incorrect");
@@ -1747,27 +1602,26 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				}
 	
 				
-				String[] UserDetails = new String[4];
-				UserDetails[0] = RegUserName;
+				String[] UserDetails = new String[4]; //Initalise UserDetails array 
+				UserDetails[0] = RegUserName; //Insert Texboxes into array
 				UserDetails[1] = RegFullName;
 				UserDetails[2] = RegPassword;
 				UserDetails[3] = RegEmail;
 
 				
 
-				if(RegPassword.equals(RegRePassword) && !RegPassword.isEmpty()) {
-					if(!UserDetails[3].isEmpty() && !UserDetails[0].isEmpty()) {
+				if(RegPassword.equals(RegRePassword) && !RegPassword.isEmpty()) { //If password is equals to retype password and password is not empty, run the following
+					if(!UserDetails[3].isEmpty() && !UserDetails[0].isEmpty()) { //If email and Username is not empty, run the follwoing
 						 try {
-							 String Register = DBInstance.UserRegister(UserDetails);
-							if(Register.equals("Register Succesfull")) {
-								frame.dispose();
+							 String Register = DBInstance.UserRegister(UserDetails); //Attempt register
+							if(Register.equals("Register Succesfull")) { //If Register returns Register Succesfull. account has been created
+								frame.dispose(); //Dispose of register frame and run login()
 								Login();
 								SuccessLabel.setText("Register Success");
 								
 								
 							}else {
-								System.out.println(Register);
-								RegisterSuccessLabel.setText(Register);
+								RegisterSuccessLabel.setText(Register);//If Register is unsuccesfull, show Return array on Label
 								
 							}
 						} catch (SQLException | IOException e1) {
@@ -1775,11 +1629,11 @@ public class GUI extends ApplicationDriver implements ActionListener{
 						}
 						
 						}else {
-							RegisterSuccessLabel.setText("Do not leave boxes blank");
+							RegisterSuccessLabel.setText("Do not leave boxes blank"); //If Username or Email is blank return following
 						}
 					
 				}else {
-					RegisterSuccessLabel.setText("Passwords do not match");
+					RegisterSuccessLabel.setText("Passwords do not match"); //If the passwords are empty or do not match return the following
 				}
 				
 				
@@ -1788,9 +1642,9 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		}else{
 
 			
-			if(ApplicationDriver.UserResult[8].equals("1")) {
+			if(ApplicationDriver.UserResult[8].equals("1")) { //If user is admin, return following
 				
-				if(e.getActionCommand().equals("Navigate to Smart City App")) {
+				if(e.getActionCommand().equals("Navigate to Smart City App")) { //If Smart city app button is pressed, run SmartCityPage() method
 					System.out.println("Navigation");
 					try {
 						SmartCityPage();
@@ -1798,87 +1652,74 @@ public class GUI extends ApplicationDriver implements ActionListener{
 						e1.printStackTrace();
 					}
 					
-				}else if(e.getActionCommand().equals("Navigate to User Verification")) {
+				}else if(e.getActionCommand().equals("Navigate to User Verification")) {//If Verify user button is pressed, run AdminUserVerification() method
 					System.out.println("User Verification");
 					try {
-						Users = DBInstance.Retrievetable("user");
+						Users = DBInstance.Retrievetable("user"); //Collect User information from database for user verification. Will only return unverified users
 					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}  
 					AdminUserVerification();
 
 					
-				}else if(e.getActionCommand().equals("Navigate to Record Viewer")) {
+				}else if(e.getActionCommand().equals("Navigate to Record Viewer")) { //if Record Viewer pressed, open AdminRecordViewer()
 					System.out.println("Table Editors");
 					AdminRecordViewer();
 					
 				}
-				
-				
-				
-				if(e.getActionCommand().equals("Verify User")) {
-					
-			        //selectedRow = UserVerificationTable.getSelectedRow();
-			        //userId = (int) UserVerificationTable.getValueAt(selectedRow, 0); // Assuming ID is in column 0
-			        
-			       // System.out.println(userId);
-					
-					
-					
-				}
-				
+
 			
 			}
 			
 			
 
-			if (e.getSource() instanceof JMenuItem) {//Is the e's source a JMenuItem
+			if (e.getSource() instanceof JMenuItem) {//Is the source of e a JMenuItem?
 	
 				JMenuItem Tablemenu = (JMenuItem) e.getSource(); //Gets component source of the tables. used for right click feature
-				String TableMenuToString = Tablemenu.toString();
+				String TableMenuToString = Tablemenu.toString(); //Turn retrieved Tablemenu data into string
 				String TableMenuText = TableMenuToString.substring(TableMenuToString.indexOf("text=")).replace("]", "").replace("text=", ""); //Accesses the "Text=" key in the JTableMenu array for the buttons text
 	
 				if(TableMenuText.equals("Expand")) {
 	
-					Expand(e);
+					Expand(e); //run the Expand() method to expand selected row
 					
 				}else if(TableMenuText.equals("Copy Link")) {
-					CopyLink(e);
+					CopyLink(e); //Run CopyLink() method to copy email or website
 					
 				}
 			
 			}
 			
-			if(e.getActionCommand().equals("Update Details") || e.getActionCommand().equals("Confirm Update")) {
+			if(e.getActionCommand().equals("Update Details") || e.getActionCommand().equals("Confirm Update")) { //if both are clicked at diffrent times then run the following / Used in changing users Details
 				
 				
                 clicks++;
-                if (clicks == 1) {
+                if (clicks == 1) { //clicks maintains the confirmation process where a user will have to click twice to update their details
                 	ChangeDetailsPageButton.setText("Confirm Update");
                 }else if (clicks == 2) {
-                	clicks = 0;
-                	ChangeDetailsPageButton.setText("Update Details");
+                	clicks = 0;//return int to 0 
+                	ChangeDetailsPageButton.setText("Update Details"); //Return to original button text
 
-					String FullName = ChangeDetailsFullNameText.getText();
+					String FullName = ChangeDetailsFullNameText.getText(); //Get full name and email
 					String Email = ChangeDetailsEmailText.getText();
 	
-					if(!ApplicationDriver.UserResult[3].equals(FullName) || !ApplicationDriver.UserResult[5].equals(Email)) {
+					if(!ApplicationDriver.UserResult[3].equals(FullName) || !ApplicationDriver.UserResult[5].equals(Email)) { //Checks if provided user information is the same as current user information
 						
 						
 	
 						try {
-							if(DBInstance.UserUpdate(Integer.parseInt(ApplicationDriver.UserResult[1]), FullName, Email)) {
-								System.out.println("Update made");
-								ChangeDetailsSuccessLabel.setText("Details Updated");
+							if(DBInstance.UserUpdate(Integer.parseInt(ApplicationDriver.UserResult[1]), FullName, Email)) { //Provides ID, fullname and email to UserUpdate() method.
+								ChangeDetailsSuccessLabel.setText("Details Updated"); //If succesfull then set label text
 	
+							}else {
+								ChangeDetailsSuccessLabel.setText("User Update failed");//if UserUpdate failed, return following
 							}
 						} catch (NumberFormatException | SQLException e1) {
 							e1.printStackTrace();
 						}
 						
 					}else {
-						ChangeDetailsSuccessLabel.setText("No changes made");
-						System.out.println("No changes made");
+						ChangeDetailsSuccessLabel.setText("No changes made");//change label if information has not changes
 					}
                 }
 			}
@@ -1889,12 +1730,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 
 		
-		if(e.getActionCommand().equals("Quit")) {
+		if(e.getActionCommand().equals("Quit")) { //Quit is included in the Menu sextion of the navbar
 	        System.exit(0); // Terminates the program
 
 		}
 		
-		if(e.getActionCommand().equals("Tourist")) {
+		if(e.getActionCommand().equals("Tourist")) { //Changes to tourist by removing the other panels and adding tourist
 			System.out.println("Tourist print");
 			
 			
@@ -1907,43 +1748,35 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			JobPanel.setVisible(false);
 			BusinessPanel.setVisible(false);
 			
-			frame.revalidate();
-			frame.repaint();
 			
 			
-		}else if(e.getActionCommand().equals("Student")) {
+		}else if(e.getActionCommand().equals("Student")) {//Changes to Student by removing the other panels and adding tourist
 			System.out.println("Student print");
 			frame.remove(TouristPanel);
 			frame.add(StudentPanel);
 			frame.remove(JobPanel);
 			frame.remove(BusinessPanel);
-
-
 			TouristPanel.setVisible(false);
 			StudentPanel.setVisible(true);
 			JobPanel.setVisible(false);
 			BusinessPanel.setVisible(false);
-			frame.revalidate();
-			frame.repaint();
+
 
 			
-		}else if(e.getActionCommand().equals("Job")) {
+		}else if(e.getActionCommand().equals("Job")) {//Changes to JobPosting by removing the other panels and adding tourist
 			System.out.println("Job print");
 			
 			frame.remove(TouristPanel);
 			frame.remove(StudentPanel);
 			frame.add(JobPanel);
 			frame.remove(BusinessPanel);
-
-			
-			
 			TouristPanel.setVisible(false);
 			StudentPanel.setVisible(false);
 			JobPanel.setVisible(true);
 			BusinessPanel.setVisible(false);
 
 			
-		}else if(e.getActionCommand().equals("Business")) {
+		}else if(e.getActionCommand().equals("Business")) {//Changes to Business by removing the other panels and adding tourist
 			System.out.println("Business print");
 			frame.remove(TouristPanel);
 			frame.remove(StudentPanel);
@@ -1957,20 +1790,17 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		
 		
 		
-		if(e.getActionCommand().equals("Log Out")) {
+		if(e.getActionCommand().equals("Log Out")) { 
 			
 			
-			frame.dispose();
+			frame.dispose(); //Dispose of SmartCityApp frame
+			ApplicationDriver.LoggedIn = false; //Changes login state for super class
 			LoggedIn = false;
-			try {
-				Login();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			ApplicationDriver.FrameStopper = 0; //Allows thread to enter into Login page
 
 			
 		}
-		if(e.getActionCommand().equals("Change Details")) {
+		if(e.getActionCommand().equals("Change Details")) { //Opens the ChangeDetails method 
 			ChangeDetails();
 			
 		}
@@ -1979,65 +1809,59 @@ public class GUI extends ApplicationDriver implements ActionListener{
 		}
 	
 	
-	private void showAddRecordFrame(String[] columnNames) throws SQLException {
+	private void showAddRecordFrame(String[] columnNames) throws SQLException { //Adds record to desired table
 		
-		//IntSkip = 10; //Integer to skip
-	    JTextField[] editTextFields = new JTextField[columnNames.length - 1];
+	    JTextField[] editTextFields = new JTextField[columnNames.length - 1]; //Initialises 1D arrays, -1 is included to exclude the array
 	    String[] editedData = new String[columnNames.length - 1];
 
-	    JFrame AddRecordFrame = new JFrame("Add Record to:" + SelectedSQL);
+	    JFrame AddRecordFrame = new JFrame("Add Record to: " + SelectedSQL); //Sets title to SelectedSQL variable
 	    AddRecordFrame.setSize(400, 300);
-	    AddRecordFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    AddRecordFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); //Dispose on close to ensure program does not fully stop when this window is closed
 
 	    JPanel contentPane = new JPanel();
-	    contentPane.setLayout(new GridLayout(0, 2, 5, 5));
+	    contentPane.setLayout(new GridLayout(0, 2, 5, 5)); //Grid layout includes 2 columns and 5px Vgap and Hgap
 	    int Skip = 0;
 	    // Create labels and text fields for each textbox other than id
 	    for (int i = 1; i < columnNames.length; i++) {
 	    	
-	    	if(columnNames[i].equals("Date Created") || columnNames[i].equals("Date Published")) {
+	    	if(columnNames[i].equals("Date Created") || columnNames[i].equals("Date Published")) {//If statement skips columns with Dates as these are automatically assigned to record via SQL
 	    		IntSkip = i-1;
-	    		System.out.println("Skip is: " + columnNames[i]);
-
-	    		System.out.println("Skip is: " + IntSkip);
 	    		Skip = 1;
-	    		continue;
+	    		continue; //Continue skips i
 
 	    		
 	    	}else if(Skip == 0){
-	    		IntSkip = 10;
+	    		IntSkip = 10; //Sets IntSkip to a number that will not be used. Null would make the algorithm cease to function
 	    	}
 	    		
-	        JLabel label = new JLabel(columnNames[i]);
+	        JLabel label = new JLabel(columnNames[i]); // Set label as column name
 	        contentPane.add(label);
 	        JTextField textField = new JTextField(); 
-	        editTextFields[i - 1] = textField;
+	        editTextFields[i - 1] = textField; //Adds textField to editTextFields array which can then be accessed once the save button is pressed
 	        contentPane.add(textField);
 	    }
 
-	    // Add Save and Cancel buttons
+	    // Add save and cancel buttons for the frame
 	    JButton saveButton = new JButton("Save");
 	    saveButton.addActionListener(new ActionListener() {
 	        @Override    
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(ActionEvent e) { //If save button is pressed
 				            // Package edited data into 1D array
 				            for (int i = 0; i < editedData.length; i++) {
-				            	if(i == IntSkip) {
-					                //System.out.println("SKIPPING /////" + editTextFields[i].getText());
+				            	if(i == IntSkip) { //Will skip the iteration if current itteration is the date
 
-					                continue;
+					                continue; //skip
 				            	}
 				            	
-				                editedData[i] = editTextFields[i].getText();
-				                System.out.println("/////////////" + editTextFields[i].getText());
+				                editedData[i] = editTextFields[i].getText(); //Get text from each textbox
+				                System.out.println("/////////////" + editTextFields[i].getText()); 
 				            }
 				            AddRecordFrame.setVisible(false); // Close the frame
 				            
 				            try {
-								if(DBInstance.AddRecord(SelectedSQL, editedData)) {
-									System.out.println("SQL SELECTED IS: " + SelectedSQL);
-									DefaultRecordModel.addRow(editedData);
-									DefaultRecordModel.fireTableDataChanged();
+								if(DBInstance.AddRecord(SelectedSQL, editedData)) {//With the editedData, a new record will be created with SelectedSQL
+									DefaultRecordModel.addRow(editedData); //Adds new row into table
+									DefaultRecordModel.fireTableDataChanged(); //Updates table
 
 								}
 							} catch (SQLException e1) {
@@ -2046,13 +1870,13 @@ public class GUI extends ApplicationDriver implements ActionListener{
 					    	
 				        }
 				    });
-	    contentPane.add(saveButton);
+	    contentPane.add(saveButton); //Adds save button to panel
 	    
 	    JButton cancelButton = new JButton("Cancel");
 	    cancelButton.addActionListener(new ActionListener() {
 	        @Override
 	        public void actionPerformed(ActionEvent e) {
-	        	AddRecordFrame.setVisible(false); // Close the frame
+	        	AddRecordFrame.setVisible(false); // Close the frame when button is clicked
 	        }
 	    });
 	    contentPane.add(cancelButton);
@@ -2063,23 +1887,23 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	}
 	
 	
-	private void showEditRecordFrame(String[] columnNames, String[] rowData) throws SQLException {
-	    JTextField[] editTextFields = new JTextField[columnNames.length - 1];
+	private void showEditRecordFrame(String[] columnNames, String[] rowData) throws SQLException { //showEditRecordFrame method Edits given record
+	    JTextField[] editTextFields = new JTextField[columnNames.length - 1]; //Initialises 1D arrays, -1 is included to exclude the array
 	    String[] editedData = new String[columnNames.length - 1];
 
-	    JFrame editFrame = new JFrame("Edit Record");
+	    JFrame editFrame = new JFrame("Edit Record"); //Sets title
 	    editFrame.setSize(400, 300);
-	    editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);//Dispose on close to ensure program does not fully stop when this window is closed
 
 	    JPanel contentPane = new JPanel();
-	    contentPane.setLayout(new GridLayout(0, 2, 5, 5));
+	    contentPane.setLayout(new GridLayout(0, 2, 5, 5));//Grid layout includes 2 columns and 5px Vgap and Hgap
 
 	    // Create labels and text fields for each textbox other than id
 	    for (int i = 1; i < columnNames.length; i++) {
 	        JLabel label = new JLabel(columnNames[i]);
 	        contentPane.add(label);
 	        JTextField textField = new JTextField(rowData[i]); // Fill with record data for editing
-	        editTextFields[i - 1] = textField;
+	        editTextFields[i - 1] = textField;//Adds textField to editTextFields array which can then be accessed once the save button is pressed
 	        contentPane.add(textField);
 	    }
 
@@ -2087,16 +1911,15 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	    JButton saveButton = new JButton("Save");
 	    saveButton.addActionListener(new ActionListener() {
 	        @Override    
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(ActionEvent e) { //If save button is pressed
 				            // Package edited data into 1D array
 				            for (int i = 0; i < editedData.length; i++) {
-				                editedData[i] = editTextFields[i].getText();
-				                System.out.println("/////////////" + editTextFields[i].getText());
+				                editedData[i] = editTextFields[i].getText();//Get text from each textbox
 				            }
 				            editFrame.setVisible(false); // Close the frame
 				            
 				            try {
-								if(DBInstance.UpdateRecord(rowData[0], SelectedSQL, editedData)) {
+								if(DBInstance.UpdateRecord(rowData[0], SelectedSQL, editedData)) { //Calls UpdateRecord method ID, current table, and the edited data
 									System.out.println("SQL SELECTED IS: " + SelectedSQL);
 
 								}
@@ -2106,7 +1929,7 @@ public class GUI extends ApplicationDriver implements ActionListener{
 					    	
 				        }
 				    });
-	    contentPane.add(saveButton);
+	    contentPane.add(saveButton); //Adds save button
 	    
 	    JButton cancelButton = new JButton("Cancel");
 	    cancelButton.addActionListener(new ActionListener() {
@@ -2125,16 +1948,148 @@ public class GUI extends ApplicationDriver implements ActionListener{
 	
 	
 	
-	private void Expand(ActionEvent e) {
-		JMenuItem menuItem = (JMenuItem) e.getSource();
+	private void Expand(ActionEvent e) { //Expand function creates a pop-up to display additional information
+		
+		JLabel label = null;  // Initialize a variable to store the found label
+
+		
+		JMenuItem menuItem = (JMenuItem) e.getSource(); //Get source of JMenu
 	    JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
-	    JTable table = (JTable) popupMenu.getInvoker();  
+	    JTable table = (JTable) popupMenu.getInvoker();  //Get the table 
+	    String TableTitle = (String) table.getClientProperty("title");
     	int Row = table.getSelectedRow();
+    	System.out.println(TableTitle);
+    	
+        String header = null;
+        String mainText = null;
+        String Website = null;
+    	
+    	
+    	
+		switch (TableTitle){ //Switch case for efficiency 
+		
+		
+	
+			case"Hotel": //Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("Hotel");
+
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 2).toString(); 
+		        Website = table.getModel().getValueAt(Row, 3).toString();  
+	
+				break;
+				
+			case"Resteraunt"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("Resteraunt");
+
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 2).toString(); 
+		        Website = table.getModel().getValueAt(Row,3).toString();  
+	
+				break;
+				
+			case"WhatsOn"://NEWS - Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("WhatsOn");
+				
+		        header = table.getModel().getValueAt(Row, 1).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 2).toString(); 
+		        Website = null;  
+				
+				
+				break;
+				
+			case"Accomidation"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("Accomidation");
+
+				
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 2).toString(); 
+		        Website = table.getModel().getValueAt(Row, 3).toString();  
+				
+				
+				break;
+				
+			case"ColUni"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("UniCol");
+				
+				
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 2).toString(); 
+		        Website = table.getModel().getValueAt(Row, 3).toString();  
+
+				break;
+				
+			case"RentableSpaces"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("RentableSpaces");
+
+				
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 4).toString(); 
+		        Website = table.getModel().getValueAt(Row, 5).toString();  
+		        
+				break;
+				
+			case"NewBuiness"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("NewBuisnesses");
+				
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 2).toString(); 
+		        Website = table.getModel().getValueAt(Row, 4).toString();  
+				
+				break;
+				
+				
+			case"BusinessNews"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("BusinessNews");
+
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 1).toString(); 
+		        Website = null;    
+		        
+				break;
+				
+				
+			case"JobPosting"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("JobPosting");
+				
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 3).toString(); 
+		        Website = table.getModel().getValueAt(Row, 5).toString();  
+		        
+		        
+				break;
+				
+			case"Volunteering"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("Volunteering");
+				
+		        header = table.getModel().getValueAt(Row, 0).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 2).toString(); 
+		        Website = table.getModel().getValueAt(Row, 1).toString();  
+		        
+		        
+				break;
+				
+			case"Apprentiships"://Checks if TableQuery is the following, if so set column amount to represent Title, Description and Email/Website
+				System.out.println("Apprentiships");
+				
+		        header = table.getModel().getValueAt(Row, 1).toString();  //Sets Header, Email or website and mainText to popup
+		        mainText = table.getModel().getValueAt(Row, 4).toString(); 
+		        Website = table.getModel().getValueAt(Row, 6).toString();  
+
+				break;
+
+		
+	}
+    	
+    	
+    	
+    	
+    	
+    	
+    	
 			
         // Retrieve data from the table
-        String header = table.getModel().getValueAt(Row, 0).toString();  // Assuming header is in column 0
-        String address = table.getModel().getValueAt(Row, 1).toString();  // Assuming address is in column 1
-        String mainText = table.getModel().getValueAt(Row, 2).toString(); // Assuming main text is in column 2
+
 
         // Create the new window
         JFrame detailsFrame = new JFrame();
@@ -2149,17 +2104,18 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 
 
-        // Create main text area with scrolling
-        JTextArea mainTextArea = new JTextArea(mainText);
+       
+        JTextArea mainTextArea = new JTextArea(mainText); // Create main text area with scrolling
         mainTextArea.setLineWrap(true);
         mainTextArea.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(mainTextArea);
-        detailsFrame.add(scrollPane, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(mainTextArea);// Create scrollable table
+        detailsFrame.add(scrollPane, BorderLayout.CENTER); //Add scrollplane in case description is large
 
-        // Create Address label
-        JLabel addressLabel = new JLabel("Email: " + address, JLabel.CENTER);
-        detailsFrame.add(addressLabel, BorderLayout.SOUTH);
-
+        if(Website != null) { //If website variable is not null then add a Email/Website label
+	        JLabel addressLabel = new JLabel("Contact: " + Website, JLabel.CENTER);// Create Address label
+	        detailsFrame.add(addressLabel, BorderLayout.SOUTH);  //Places label at the south of the JFrame
+        }
+        
         // Center the frame
         detailsFrame.setSize(400,300);
         detailsFrame.setLocationRelativeTo(null);  // Center relative to screen
@@ -2167,19 +2123,19 @@ public class GUI extends ApplicationDriver implements ActionListener{
 			
 		}
 
-	private void CopyLink(ActionEvent e) {
-			JMenuItem menuItem = (JMenuItem) e.getSource();
+	private void CopyLink(ActionEvent e) { //Creates a popup which alerts the user that a link has been copied to clipboard
+			JMenuItem menuItem = (JMenuItem) e.getSource();//Get source of JMenu
 		    JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
-		    JTable table = (JTable) popupMenu.getInvoker();  
+		    JTable table = (JTable) popupMenu.getInvoker();  //Get the table
         	int Row = table.getSelectedRow();
-			String Website = table.getModel().getValueAt(Row, 3).toString();
+			String Website = table.getModel().getValueAt(Row, 3).toString(); //Get the Email or website Column
 
 		    StringSelection selection = new StringSelection(Website);
 		    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		    clipboard.setContents(selection, selection); //copy website or email link
 			
 			JOptionPane.showMessageDialog(frame,
-					Website + " Has been copied");
+					Website + " Has been copied"); //Show that website or email has been copied
 			
 			
 			
@@ -2188,13 +2144,13 @@ public class GUI extends ApplicationDriver implements ActionListener{
 
 	
 	
-	private void LoadNewTable(String TableQuery) {
+	private void LoadNewTable(String TableQuery) { //Loads new table, used in Admin record viewer
 		
-		switch (TableQuery){
+		switch (TableQuery){ //Switch case for efficiency 
 		
 		
 
-			case"Hotels":
+			case"Hotels": //Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("Hotels");
 				AdminColumnNames = new String[5];  // Create the array with size 3
 				
@@ -2205,12 +2161,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[4] = "Email";
 				
 				AdminTableData = new String[ApplicationDriver.Hotels.length][AdminColumnNames.length];
-				AdminTableData = ApplicationDriver.Hotels;
+				AdminTableData = ApplicationDriver.Hotels; //Retrieves data from 2D array in the super class
 				SelectedSQL = "hotels";
 
 				break;
 				
-			case"Resteraunts":
+			case"Resteraunts"://Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("Resteraunts");
 				AdminColumnNames = new String[5];  // Create the array with size 3
 				
@@ -2221,12 +2177,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[4] = "Email";
 
 				
-				AdminTableData = ApplicationDriver.Resteraunts;
+				AdminTableData = ApplicationDriver.Resteraunts;//Retrieves data from 2D array in the super class
 				SelectedSQL = "resteraunt";
 
 				break;
 				
-			case"News":
+			case"News"://Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("News");
 				
 				AdminColumnNames = new String[4];  // Create the array with size 3
@@ -2236,12 +2192,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[2] = "Description";
 				AdminColumnNames[3] = "Date Created";
 				
-				AdminTableData = ApplicationDriver.News;
+				AdminTableData = ApplicationDriver.News;//Retrieves data from 2D array in the super class
 				SelectedSQL = "news";
 
 				break;
 				
-			case"Accomidation":
+			case"Accomidation"://Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("Accomidation");
 				
 				AdminColumnNames = new String[6];  // Create the array with size 3
@@ -2253,12 +2209,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[4] = "Email";
 				AdminColumnNames[5] = "Weekly Cost";
 
-				AdminTableData = ApplicationDriver.Accomidation;
+				AdminTableData = ApplicationDriver.Accomidation;//Retrieves data from 2D array in the super class
 				SelectedSQL = "accomidation";
 
 				break;
 				
-			case"UniCol":
+			case"UniCol"://Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("UniCol");
 				
 				AdminColumnNames = new String[5];  // Create the array with size 3
@@ -2269,12 +2225,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[3] = "Description";
 				AdminColumnNames[4] = "Website";
 
-				AdminTableData = ApplicationDriver.UniCol;
+				AdminTableData = ApplicationDriver.UniCol;//Retrieves data from 2D array in the super class
 				SelectedSQL = "unicol";
 
 				break;
 				
-			case"RentableSpaces":
+			case"RentableSpaces"://Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("RentableSpaces");
 				
 				AdminColumnNames = new String[8];  // Create the array with size 3
@@ -2288,12 +2244,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[6] = "Contact";
 				AdminColumnNames[7] = "Date Published";
 
-				AdminTableData = ApplicationDriver.RentableSpaces;
+				AdminTableData = ApplicationDriver.RentableSpaces;//Retrieves data from 2D array in the super class
 				SelectedSQL = "rentablespace";
 
 				break;
 				
-			case"NewBuisnesses":
+			case"NewBuisnesses"://Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("NewBuisnesses");
 				AdminColumnNames = new String[7];  // Create the array with size 3
 				
@@ -2305,13 +2261,13 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[6] = "Email";
 				AdminColumnNames[5] = "Date Published";
 
-				AdminTableData = ApplicationDriver.NewBuisnesses;
+				AdminTableData = ApplicationDriver.NewBuisnesses;//Retrieves data from 2D array in the super class
 				SelectedSQL = "business";
 
 				break;
 				
 				
-			case"JobPost":
+			case"JobPost"://Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("JobPost");
 				
 				AdminColumnNames = new String[7];  // Create the array with size 3
@@ -2323,12 +2279,12 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[4] = "Description";
 				AdminColumnNames[5] = "Apprentiship";
 				AdminColumnNames[6] = "Website";
-				AdminTableData = ApplicationDriver.JobPost;
+				AdminTableData = ApplicationDriver.JobPost;//Retrieves data from 2D array in the super class
 				SelectedSQL = "jobposting";
 
 				break;
 				
-			case"Volunteering":
+			case"Volunteering"://Checks if TableQuery is the following, if so set column amount and initialise AdminTableData
 				System.out.println("Volunteering");
 				
 				AdminColumnNames = new String[7];  // Create the array with size 3
@@ -2340,42 +2296,24 @@ public class GUI extends ApplicationDriver implements ActionListener{
 				AdminColumnNames[4] = "Description";
 				AdminColumnNames[5] = "Website";
 				AdminColumnNames[6] = "Contact";
-				AdminTableData = ApplicationDriver.Volunteering;
+				AdminTableData = ApplicationDriver.Volunteering;//Retrieves data from 2D array in the super class
 				SelectedSQL = "volunteering";
 
-				break;
-				
-			case"BusinessNews":
-				System.out.println("BusinessNews");
-				
-				AdminColumnNames = new String[4];  // Create the array with size 3
-				
-				AdminColumnNames[0] = "ID";
-				AdminColumnNames[1] = "Name";
-				AdminColumnNames[2] = "2";
-				AdminColumnNames[3] = "3";
-				AdminTableData = new String[ApplicationDriver.BusinessNews.length][AdminColumnNames.length];
-				AdminTableData = ApplicationDriver.BusinessNews;
-				SelectedSQL = "news";
-
-				
-				
-				//MUST REMOVE THIS CASE AS IT IS NO DIFFRENT TO NEWS
 				break;
 
 			
 		}
 
-		DefaultTableModel tableModel = (DefaultTableModel) AdminRecordViewerTable.getModel();
+		DefaultTableModel tableModel = (DefaultTableModel) AdminRecordViewerTable.getModel(); //Set new DefaultTableModel from AdminRecordViewerTable
 
 		
 
 		
         
-		tableModel.setDataVector(AdminTableData, AdminColumnNames);
-		tableModel.fireTableDataChanged();
+		tableModel.setDataVector(AdminTableData, AdminColumnNames);//Set new dataVector  for tableModel
+		tableModel.fireTableDataChanged(); //Update table
 		
-		TableColumnModel columnModel = AdminRecordViewerTable.getColumnModel();
+		TableColumnModel columnModel = AdminRecordViewerTable.getColumnModel(); //Hides the ID in the new table
 		AdminHiddenCollumn0 = columnModel.getColumn(0);
         AdminHiddenCollumn0.setPreferredWidth(0);
         AdminHiddenCollumn0.setMinWidth(0);

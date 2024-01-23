@@ -30,7 +30,6 @@ public class Tourism extends ApplicationDriver implements SmartCityApp{
 		Hotels = DBInstance.Retrievetable("hotels");   //Stores table information from DBInstance with table name. 
 		Resteraunts = DBInstance.Retrievetable("resteraunt");  
 		News = DBInstance.Retrievetable("news");  
-        System.out.println("complete Tourist");
         
         ApplicationDriver.Hotels = Hotels;//Stores unConverted table data into local variables which can be accessed from super class and ConvertTable
         ApplicationDriver.Resteraunts = Resteraunts;

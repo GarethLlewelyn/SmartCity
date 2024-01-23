@@ -22,7 +22,6 @@ public class JobAplicants extends ApplicationDriver implements SmartCityApp{
 		Volunteering = DBInstance.Retrievetable("volunteering");  
 		Apprentiship = DBInstance.Retrievetable("Apprentiship");  
 
-		System.out.println("/ complete Job /");
         
         ApplicationDriver.JobPost = JobPost;//Stores unConverted table data into local variables which can be accessed from super class and ConvertTable
         ApplicationDriver.Volunteering = Volunteering;
@@ -37,9 +36,9 @@ public class JobAplicants extends ApplicationDriver implements SmartCityApp{
     public void ConvertTable() throws SQLException {//Converts local unconverted variables into table variables.
     	
     	
-    	JobPostTable = new String[JobPost.length][4]; //Initialises with row amount and column amount
+    	JobPostTable = new String[JobPost.length][7]; //Initialises with row amount and column amount
     	VolunteeringTable = new String[Volunteering.length][4]; 
-    	ApprentishipTable = new String[Apprentiship.length][4]; 
+    	ApprentishipTable = new String[Apprentiship.length][7]; 
 
 
           for (int i = 0; i < JobPost.length; i++) {//For loop iterating through variables row and converts them into TableVariables used in the tables viewed by users
@@ -48,7 +47,8 @@ public class JobAplicants extends ApplicationDriver implements SmartCityApp{
         	  JobPostTable[i][1] = JobPost[i][2];
         	  JobPostTable[i][2] = JobPost[i][3];
         	  JobPostTable[i][3] = JobPost[i][4];
-
+        	  JobPostTable[i][4] = JobPost[i][5];
+        	  JobPostTable[i][5] = JobPost[i][6];
           		
           		
           	}
@@ -70,7 +70,8 @@ public class JobAplicants extends ApplicationDriver implements SmartCityApp{
         	  ApprentishipTable[i][1] = Apprentiship[i][2];
         	  ApprentishipTable[i][2] = Apprentiship[i][3];
         	  ApprentishipTable[i][3] = Apprentiship[i][4];
-
+        	  ApprentishipTable[i][4] = Apprentiship[i][5];
+        	  ApprentishipTable[i][5] = Apprentiship[i][6];
       		
       		
       		}

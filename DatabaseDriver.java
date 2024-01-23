@@ -7,17 +7,16 @@ import java.util.*;
 
 public class DatabaseDriver {
 	
-	String userName; //Local variables, not accessed by external classes
-	String password; 
-	String serverName; 
-	String url;
-	Object Host;
-	int portNumber;
-	Connection conn;
-	String Query;
-	Statement statement;
-	ResultSet resultSet;
-	
+	private String userName; //Local variables, not accessed by external classes
+	private String password; 
+	private String serverName; 
+	private String url;
+	private Object Host;
+	private int portNumber;
+	private Connection conn;
+	private String Query;
+	private Statement statement;
+	private ResultSet resultSet;
 	private PreparedStatement Registerstmt;
 
 	

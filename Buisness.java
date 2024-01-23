@@ -15,7 +15,6 @@ public class Buisness extends ApplicationDriver implements SmartCityApp{
 		NewBuisnesses = DBInstance.Retrievetable("business");  
 		BusinessNews = DBInstance.Retrievetable("news");  
 
-        System.out.println("/ complete business /");
         
         ApplicationDriver.RentableSpaces = RentableSpaces; //Stores unConverted table data into local variables which can be accessed from super class and ConvertTable
         ApplicationDriver.NewBuisnesses = NewBuisnesses;
@@ -31,8 +30,8 @@ public class Buisness extends ApplicationDriver implements SmartCityApp{
     public void ConvertTable() throws SQLException {//Converts local unconverted variables into table variables.
     	
     	
-    	RentableSpacesTable = new String[RentableSpaces.length][4]; //Initialises with row amount and column amount
-    	NewBuisnessesTable = new String[NewBuisnesses.length][4]; 
+    	RentableSpacesTable = new String[RentableSpaces.length][6]; //Initialises with row amount and column amount
+    	NewBuisnessesTable = new String[NewBuisnesses.length][6]; 
     	BusinessNewsTable = new String[BusinessNews.length][4]; 
 
           for (int i = 0; i < RentableSpaces.length; i++) { //For loop iterating through variables row and converts them into TableVariables used in the tables viewed by users
@@ -41,7 +40,8 @@ public class Buisness extends ApplicationDriver implements SmartCityApp{
         	  RentableSpacesTable[i][1] = RentableSpaces[i][2];
         	  RentableSpacesTable[i][2] = RentableSpaces[i][3];
         	  RentableSpacesTable[i][3] = RentableSpaces[i][4];
-
+        	  RentableSpacesTable[i][4] = RentableSpaces[i][5];
+        	  RentableSpacesTable[i][5] = RentableSpaces[i][6];
           		
           		
           	}
@@ -53,8 +53,8 @@ public class Buisness extends ApplicationDriver implements SmartCityApp{
         	  NewBuisnessesTable[i][1] = NewBuisnesses[i][2];
         	  NewBuisnessesTable[i][2] = NewBuisnesses[i][3];
         	  NewBuisnessesTable[i][3] = NewBuisnesses[i][4];
-
-      		
+        	  NewBuisnessesTable[i][4] = NewBuisnesses[i][5];
+        	  NewBuisnessesTable[i][5] = NewBuisnesses[i][6];
       		
       		}
           

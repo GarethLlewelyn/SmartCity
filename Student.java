@@ -17,7 +17,6 @@ public class Student extends ApplicationDriver implements SmartCityApp{
 		
 		Accomidation = DBInstance.Retrievetable("accomidation");   //Stores table information from DBInstance with table name. 
 		UniCol = DBInstance.Retrievetable("unicol");  
-        System.out.println("/ complete student /");
         
         ApplicationDriver.Accomidation = Accomidation;//Stores unConverted table data into local variables which can be accessed from super class and ConvertTable
         ApplicationDriver.UniCol = UniCol;
